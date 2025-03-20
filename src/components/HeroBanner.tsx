@@ -2,6 +2,7 @@
 
 import { useDarkMode } from '@/context/DarkModeContext'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export function HeroBanner() {
   const { isDarkMode } = useDarkMode()
@@ -16,12 +17,15 @@ export function HeroBanner() {
           <p className={`mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             Browse through our diverse range of meticulously crafted garments, designed to bring out your individuality and cater to your sense of style.
           </p>
-          <button className={`px-8 py-3 rounded-full transition-colors ${
-            isDarkMode ? 'bg-white text-black hover:bg-gray-100' : 'bg-black text-white hover:bg-black'
-          }`}>
-            Shop Now
-          </button>
-          
+          <Link
+            href={'/shop'}
+          >
+            <button className={`px-8 py-3 rounded-full transition-colors ${isDarkMode ? 'bg-white text-black hover:bg-gray-100' : 'bg-black text-white hover:bg-black'
+              }`}>
+              Shop Now
+            </button>
+          </Link>
+
           <div className="grid grid-cols-3 gap-4 mt-12">
             <div>
               <h3 className="text-2xl font-bold">200+</h3>
@@ -37,7 +41,7 @@ export function HeroBanner() {
             </div>
           </div>
         </div>
-        
+
         <div className="relative h-[30rem] overflow-hidden rounded-lg shadow-lg">
           <Image
             src="/product2.png"

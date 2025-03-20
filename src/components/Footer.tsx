@@ -35,10 +35,8 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">Help</h3>
             <ul className="space-y-2">
-              <li><Link href="/shipping" className={`${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}>Shipping Info</Link></li>
-              <li><Link href="/returns" className={`${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}>Returns</Link></li>
-              <li><Link href="/sizing" className={`${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}>Sizing Guide</Link></li>
-              <li><Link href="/faq" className={`${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}>FAQs</Link></li>
+               <li><Link href="/faq" className={`${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}>FAQs</Link></li>
+               <li><Link href="/tracking" className={`${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}>Track Order</Link></li>
             </ul>
           </div>
 

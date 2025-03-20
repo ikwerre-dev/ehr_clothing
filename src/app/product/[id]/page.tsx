@@ -1,5 +1,5 @@
 'use client'
-
+import type { Metadata } from 'next'
 import { useState } from 'react'
 import { use } from 'react'
 import { StarIcon } from '@heroicons/react/24/solid'
@@ -72,17 +72,19 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   {[...Array(5)].map((_, i) => (
                     <StarIcon
                       key={i}
-                      className={`h-5 w-5 ${i < product.rating ? 'text-yellow-400' : 'text-gray-200'}`}
+                      className={`h-5 w-5 ${i < product.rating ? 'text-yellow-400' : isDarkMode ? 'text-gray-600' : 'text-gray-200'}`}
                     />
                   ))}
                 </div>
-                <span className="text-gray-600 dark:text-gray-400">({product.reviewCount} reviews)</span>
+                <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
+                  ({product.reviewCount} reviews)
+                </span>
               </div>
 
               <div className="space-y-2">
                 <p className="text-2xl font-bold">₦{product.price.toLocaleString()}</p>
                 {product.originalPrice && (
-                  <p className="text-gray-600 dark:text-gray-400 line-through">
+                  <p className={isDarkMode ? 'text-gray-300 line-through' : 'text-gray-600 line-through'}>
                     ₦{product.originalPrice.toLocaleString()}
                   </p>
                 )}
@@ -94,15 +96,15 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               <div className="space-y-4">
                 <div>
                   <h3 className="font-medium mb-2">Select Size</h3>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {SIZES.map(size => (
                       <button
                         key={size}
                         onClick={() => setSelectedSize(size)}
                         className={`px-4 py-2 border rounded ${
                           selectedSize === size 
-                            ? 'border-black dark:border-white bg-black dark:bg-white text-white dark:text-black' 
-                            : 'border-gray-300 dark:border-gray-600'
+                            ? (isDarkMode ? 'bg-white text-black border-white' : 'bg-black text-white border-black')
+                            : (isDarkMode ? 'border-gray-600 hover:border-gray-400' : 'border-gray-300 hover:border-gray-500')
                         }`}
                       >
                         {size}
@@ -113,15 +115,15 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
                 <div>
                   <h3 className="font-medium mb-2">Select Color</h3>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {COLORS.map(color => (
                       <button
                         key={color}
                         onClick={() => setSelectedColor(color)}
                         className={`px-4 py-2 border rounded ${
                           selectedColor === color 
-                            ? 'border-black dark:border-white bg-black dark:bg-white text-white dark:text-black' 
-                            : 'border-gray-300 dark:border-gray-600'
+                            ? (isDarkMode ? 'bg-white text-black border-white' : 'bg-black text-white border-black')
+                            : (isDarkMode ? 'border-gray-600 hover:border-gray-400' : 'border-gray-300 hover:border-gray-500')
                         }`}
                       >
                         {color}
@@ -142,7 +144,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 Add to Cart
               </button>
 
-              <div className="prose dark:prose-invert">
+              <div className={`prose ${isDarkMode ? 'prose-invert' : ''} max-w-none`}>
                 <h3>Product Description</h3>
                 <p>{product.description || "Experience premium quality and style with this carefully crafted piece from our collection."}</p>
                 

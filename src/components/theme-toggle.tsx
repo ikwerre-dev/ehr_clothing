@@ -9,7 +9,11 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleDarkMode}
-      className="relative rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+      className={`relative rounded-lg p-2 cursor-pointer transition-colors ${
+        isDarkMode 
+          ? 'hover:bg-[#121212] text-white' 
+          : 'hover:bg-gray-100 text-black'
+      }`}
     >
       {isDarkMode ? (
         <SunIcon className="h-6 w-6" />

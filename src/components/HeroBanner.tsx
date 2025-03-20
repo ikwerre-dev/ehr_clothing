@@ -1,12 +1,13 @@
 'use client'
 
 import { useDarkMode } from '@/context/DarkModeContext'
+import Image from 'next/image'
 
 export function HeroBanner() {
   const { isDarkMode } = useDarkMode()
 
   return (
-    <section className={`relative px-6 py-12 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+    <section className={`relative px-6 py-12 ${isDarkMode ? 'bg-black text-white' : 'bg-gray-50 text-black'}`}>
       <div className="container mx-auto grid md:grid-cols-2 gap-8 items-center">
         <div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -16,7 +17,7 @@ export function HeroBanner() {
             Browse through our diverse range of meticulously crafted garments, designed to bring out your individuality and cater to your sense of style.
           </p>
           <button className={`px-8 py-3 rounded-full transition-colors ${
-            isDarkMode ? 'bg-white text-gray-900 hover:bg-gray-100' : 'bg-black text-white hover:bg-gray-900'
+            isDarkMode ? 'bg-white text-black hover:bg-gray-100' : 'bg-black text-white hover:bg-black'
           }`}>
             Shop Now
           </button>
@@ -38,9 +39,10 @@ export function HeroBanner() {
         </div>
         
         <div className="relative h-[30rem] overflow-hidden rounded-lg shadow-lg">
-          <img
+          <Image
             src="/product2.png"
             alt="Fashion Models"
+            layout="fill"
             className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
           />
           <div className="absolute -top-4 -left-4 w-8 h-8 text-yellow-400">✨</div>

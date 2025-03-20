@@ -8,6 +8,7 @@ import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import productsData from '@/data/products.json'
 import { useCart } from '@/context/CartContext'
+import Image from 'next/image'
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 const COLORS = ['Black', 'White', 'Navy', 'Gray', 'Red']
@@ -46,16 +47,18 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   }
 
   return (
-    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
+    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'bg-black text-white' : 'bg-white text-black'}`}>
       <Header />
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-8">
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-4">
               <div className="aspect-square rounded-lg overflow-hidden">
-                <img
+                <Image
                   src={product.image}
                   alt={product.title}
+                  width={500}
+                  height={500}
                   className="w-full h-full object-cover"
                 />
               </div>

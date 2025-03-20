@@ -40,3 +40,22 @@ export async function PUT(
     )
   }
 }
+
+export async function DELETE(
+    request: Request,
+    { params }: { params: { id: string } }
+) {
+    try {
+        await prisma.product.delete({
+            where: { id: params.id },
+        })
+
+        return new Response(null, { status: 204 })
+    } catch (error) {
+        console.error('Product deletion error:', error)
+        return Response.json(
+            { error: 'Failed to delete product' },
+            { status: 500 }
+        )
+    }
+}

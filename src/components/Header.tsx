@@ -55,18 +55,8 @@ export function Header({ onSearch }: { onSearch?: (query: string) => void }) {
 
                 <nav className="hidden md:flex items-center gap-6">
                     <Link href="/shop" className={`hover:opacity-80 transition-opacity ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Shop</Link>
-                    <Link
-                        href="/shop?filter=on-sale"
-                        className={`hover:opacity-80 transition-opacity ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}
-                    >
-                        On Sale
-                    </Link>
-                    <Link
-                        href="/shop?filter=new-arrivals"
-                        className={`hover:opacity-80 transition-opacity ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}
-                    >
-                        New Arrivals
-                    </Link>
+                    <Link href="/contact" className={`hover:opacity-80 transition-opacity ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Contact</Link>
+
                     <Link
                         href="/tracking"
                         className={`hover:opacity-80 transition-opacity ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}
@@ -130,20 +120,9 @@ export function Header({ onSearch }: { onSearch?: (query: string) => void }) {
                             <MagnifyingGlassIcon className={`w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
                         </div>
                         <nav className="flex flex-col gap-4">
-                        <Link href="/contact" className={`hover:opacity-80 transition-opacity ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Contact Us</Link>
-                        <Link href="/shop" className={`hover:opacity-80 transition-opacity ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Shop</Link>
-                            <Link
-                                href="/shop?filter=on-sale"
-                                className={`hover:opacity-80 transition-opacity ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}
-                            >
-                                On Sale
-                            </Link>
-                            <Link
-                                href="/shop?filter=new-arrivals"
-                                className={`hover:opacity-80 transition-opacity ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}
-                            >
-                                New Arrivals
-                            </Link>
+                            <Link href="/contact" className={`hover:opacity-80 transition-opacity ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Contact Us</Link>
+                            <Link href="/shop" className={`hover:opacity-80 transition-opacity ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Shop</Link>
+
                             <Link href="/tracking" className={`hover:opacity-80 transition-opacity ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Track Order</Link>
                         </nav>
                     </div>

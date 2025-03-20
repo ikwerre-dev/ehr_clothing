@@ -1,28 +1,98 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { EyeIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { toast } from 'react-hot-toast'
 
 type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
 
 interface Order {
     id: string
-    date: string
-    customer: string
-    total: number
+    createdAt: string
     status: OrderStatus
-    items: number
+    totalAmount: number
+    user: {
+        name: string
+        email: string
+        phone: string
+    }
+    orderItems: {
+        id: string
+        quantity: number
+        product: {
+            name: string
+            price: number
+        }
+    }[]
+    shippingAddress: {
+        street: string
+        city: string
+        state: string
+        country: string
+    }
 }
 
 export default function OrdersPage() {
+    const [orders, setOrders] = useState<Order[]>([])
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
+    const [statusFilter, setStatusFilter] = useState('all')
+    const [searchQuery, setSearchQuery] = useState('')
+ 
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(0)
+    const itemsPerPage = 10
+    
+    // Update the fetchOrders function
+    const fetchOrders = async () => {
+        try {
+            const response = await fetch(`/api/admin/orders?page=${currentPage}&limit=${itemsPerPage}`)
+            if (!response.ok) throw new Error('Failed to fetch orders')
+            const data = await response.json()
+            setOrders(data.orders)
+            setTotalPages(Math.ceil(data.total / itemsPerPage))
+        } catch (error) {
+            toast.error('Failed to load orders')
+            console.error(error)
+        } finally {
+            setIsLoading(false)
+        }
+    }
 
-    const orders: Order[] = [
-        { id: '2024001', date: '2024-01-20', customer: 'John Doe', total: 45000, status: 'delivered', items: 2 },
-        { id: '2024002', date: '2024-01-21', customer: 'Jane Smith', total: 75000, status: 'processing', items: 3 },
-        { id: '2024003', date: '2024-01-22', customer: 'Mike Johnson', total: 25000, status: 'pending', items: 1 },
-        // Add more sample orders
-    ]
+    // Update order status
+    const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
+        try {
+            const response = await fetch(`/api/admin/orders/${orderId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus }),
+            })
+
+            if (!response.ok) throw new Error('Failed to update order status')
+            
+            // Update local state
+            setOrders(orders.map(order => 
+                order.id === orderId ? { ...order, status: newStatus } : order
+            ))
+            toast.success('Order status updated')
+        } catch (error) {
+            toast.error('Failed to update order status')
+            console.error(error)
+        }
+    }
+
+    useEffect(() => {
+        fetchOrders()
+    }, [])
+
+    // Filter and search orders
+    const filteredOrders = orders.filter(order => {
+        const matchesStatus = statusFilter === 'all' || order.status === statusFilter
+        const matchesSearch = searchQuery === '' || 
+            order.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            order.id.toLowerCase().includes(searchQuery.toLowerCase())
+        return matchesStatus && matchesSearch
+    })
 
     const getStatusColor = (status: OrderStatus) => {
         switch (status) {
@@ -71,11 +141,17 @@ export default function OrdersPage() {
                     <tbody className="bg-white divide-y divide-gray-200">
                         {orders.map((order) => (
                             <tr key={order.id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{order.id}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.date}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.customer}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.items}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦{order.total.toLocaleString()}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{order.id.substring(0, 8)}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {new Date(order.createdAt).toLocaleDateString()}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.user.name}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {order.orderItems.reduce((sum, item) => sum + item.quantity, 0)}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    ₦{order.totalAmount.toLocaleString()}
+                                </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
                                         {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
@@ -111,9 +187,9 @@ export default function OrdersPage() {
                                 <div>
                                     <h3 className="font-medium text-gray-900">Customer Information</h3>
                                     <div className="mt-2 text-sm text-gray-600">
-                                        <p className="font-medium text-gray-900">{selectedOrder.customer}</p>
-                                        <p>+234 801 234 5678</p>
-                                        <p>customer@email.com</p>
+                                        <p className="font-medium text-gray-900">{selectedOrder.user.name}</p>
+                                        <p>{selectedOrder.user.phone}</p>
+                                        <p>{selectedOrder.user.email}</p>
                                     </div>
                                 </div>
 
@@ -142,7 +218,7 @@ export default function OrdersPage() {
                                     <div className="mt-2 space-y-2">
                                         <div className="flex justify-between text-sm">
                                             <span className="text-gray-600">Subtotal</span>
-                                            <span className="text-gray-900">₦{selectedOrder.total.toLocaleString()}</span>
+                                            <span className="text-gray-900">₦{selectedOrder.totalAmount.toLocaleString()}</span>
                                         </div>
                                         <div className="flex justify-between text-sm">
                                             <span className="text-gray-600">Shipping</span>
@@ -150,7 +226,7 @@ export default function OrdersPage() {
                                         </div>
                                         <div className="flex justify-between text-sm font-medium border-t pt-2">
                                             <span className="text-gray-900">Total</span>
-                                            <span className="text-gray-900">₦{(selectedOrder.total + 2000).toLocaleString()}</span>
+                                            <span className="text-gray-900">₦{(selectedOrder.totalAmount + 2000).toLocaleString()}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -203,36 +279,59 @@ export default function OrdersPage() {
             {/* Pagination */}
             <div className="mt-6 flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
                 <div className="flex flex-1 justify-between sm:hidden">
-                    <button className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <button 
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                    >
                         Previous
                     </button>
-                    <button className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <button 
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                    >
                         Next
                     </button>
                 </div>
                 <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                     <div>
                         <p className="text-sm text-gray-700">
-                            Showing <span className="font-medium">1</span> to <span className="font-medium">10</span> of{' '}
-                            <span className="font-medium">97</span> results
+                            Showing <span className="font-medium">{((currentPage - 1) * itemsPerPage) + 1}</span> to{' '}
+                            <span className="font-medium">{Math.min(currentPage * itemsPerPage, orders.length)}</span> of{' '}
+                            <span className="font-medium">{orders.length}</span> results
                         </p>
                     </div>
                     <div>
                         <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                            <button className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                            <button 
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50"
+                            >
                                 <span className="sr-only">Previous</span>
                                 <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                     <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
                                 </svg>
                             </button>
-                            <button className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">1</button>
-                            <button className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">2</button>
-                            <button className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 md:inline-flex">3</button>
-                            <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300">...</span>
-                            <button className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">8</button>
-                            <button className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">9</button>
-                            <button className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">10</button>
-                            <button className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                            {[...Array(totalPages)].map((_, i) => (
+                                <button
+                                    key={i + 1}
+                                    onClick={() => setCurrentPage(i + 1)}
+                                    className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+                                        currentPage === i + 1
+                                            ? 'bg-blue-600 text-white focus:z-20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
+                                            : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20'
+                                    }`}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                            <button 
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50"
+                            >
                                 <span className="sr-only">Next</span>
                                 <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                     <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />

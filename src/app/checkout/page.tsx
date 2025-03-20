@@ -7,6 +7,7 @@ import { useCart } from '@/context/CartContext'
 import { useDarkMode } from '@/context/DarkModeContext'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 export default function CheckoutPage() {
     const { isDarkMode } = useDarkMode()
@@ -25,13 +26,47 @@ export default function CheckoutPage() {
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
     const shipping = 2500
     const total = subtotal + shipping
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const router = useRouter()
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        // Handle payment processing here
-        alert('Order placed successfully!')
-        clearCart()
-        // Redirect to success page or home
+        setIsSubmitting(true)
+
+        try {
+            const response = await fetch('/api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    items: items.map(item => ({
+                        id: item.id,
+                        quantity: item.quantity,
+                        price: item.price,
+                        size: item.size,
+                        color: item.color
+                    })),
+                    customerInfo: formData,
+                    total,
+                    subtotal,
+                    shipping
+                }),
+            })
+
+            if (!response.ok) {
+                throw new Error('Failed to create order')
+            }
+
+            const data = await response.json()
+            clearCart()
+            router.push(`/order-confirmation?reference=${data.reference}`)
+        } catch (error) {
+            console.error('Error creating order:', error)
+            alert('Failed to place order. Please try again.')
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     if (items.length === 0) {
@@ -151,12 +186,16 @@ export default function CheckoutPage() {
 
                         <button
                             type="submit"
-                            className={`w-full py-3 rounded-lg transition-colors ${isDarkMode
-                                    ? 'bg-white text-black hover:bg-gray-200'
-                                    : 'bg-black text-white hover:bg-[#111]'
-                                }`}
+                            disabled={isSubmitting}
+                            className={`w-full py-3 rounded-lg transition-colors ${
+                                isSubmitting 
+                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    : isDarkMode
+                                        ? 'bg-white text-black hover:bg-gray-200'
+                                        : 'bg-black text-white hover:bg-[#111]'
+                            }`}
                         >
-                            Place Order (₦{total.toLocaleString()})
+                            {isSubmitting ? 'Processing...' : `Place Order (₦${total.toLocaleString()})`}
                         </button>
                     </form>
 

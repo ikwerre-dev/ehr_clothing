@@ -1,13 +1,15 @@
+import { Category } from "@prisma/client/wasm"
+
+ 
 export interface Product {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
-  rating: number;
-  reviewCount: number;
-  image: string;
-  discount?: number;
-  category: string;
-  createdAt: string; // ISO date string format
+  id: string
+  name: string
+  description: string
+  price: number
+  images: string[]
+  category: Category
+  categoryId: string
+  stock: number
+  createdAt: Date
+  updatedAt: Date
 }

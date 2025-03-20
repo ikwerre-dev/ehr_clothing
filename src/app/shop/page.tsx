@@ -6,38 +6,69 @@ import { Footer } from '@/components/Footer'
 import { ProductCard } from '@/components/ProductCard'
 import { useDarkMode } from '@/context/DarkModeContext'
 import { FunnelIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import productsData from '@/data/products.json'
 import { Product } from '@/types/product'
 import { useSearchParams } from 'next/navigation'
- 
-type FilterType = 'all' | 'on-sale' | 'new-arrivals'
+
+interface Category {
+  id: string
+  name: string
+}
 
 export default function ShopPage() {
   const { isDarkMode } = useDarkMode()
   const [searchQuery, setSearchQuery] = useState('')
+  const [products, setProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const searchParams = useSearchParams()
-  const filterParam = searchParams.get('filter') as FilterType | null
-  const [activeFilter, setActiveFilter] = useState<FilterType>(
-    filterParam && ['all', 'on-sale', 'new-arrivals'].includes(filterParam) 
-      ? filterParam 
-      : 'all'
-  )
-
-  // Add this new useEffect to update activeFilter when URL changes
-  useEffect(() => {
-    if (filterParam && ['all', 'on-sale', 'new-arrivals'].includes(filterParam)) {
-      setActiveFilter(filterParam as FilterType)
-    } else {
-      setActiveFilter('all')
-    }
-  }, [filterParam])
-
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(productsData.products)
+  const categoryParam = searchParams.get('category')
+  const [activeCategory, setActiveCategory] = useState<string>(categoryParam || 'all')
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
 
+  // Fetch categories
   useEffect(() => {
-     if (isFilterOpen || isSearchOpen) {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/categories')
+        const data = await response.json()
+        setCategories(data)
+      } catch (error) {
+        console.error('Failed to fetch categories:', error)
+      }
+    }
+    fetchCategories()
+  }, [])
+
+  // Fetch products
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true)
+      try {
+        const params = new URLSearchParams()
+        if (activeCategory && activeCategory !== 'all') {
+          params.append('category', activeCategory)
+        }
+        if (searchQuery) {
+          params.append('search', searchQuery)
+        }
+
+        const response = await fetch(`/api/products?${params.toString()}`)
+        const data = await response.json()
+        setProducts(data)
+      } catch (error) {
+        console.error('Failed to fetch products:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchProducts()
+  }, [activeCategory, searchQuery])
+
+  // Handle body scroll lock
+  useEffect(() => {
+    if (isFilterOpen || isSearchOpen) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = 'unset'
@@ -47,32 +78,6 @@ export default function ShopPage() {
       document.body.style.overflow = 'unset'
     }
   }, [isFilterOpen, isSearchOpen])
-
-  useEffect(() => {
-    let filtered: Product[] = productsData.products
-
-    if (searchQuery) {
-      filtered = filtered.filter(product =>
-        product.title.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    }
-
-    switch (activeFilter) {
-      case 'on-sale':
-        filtered = filtered.filter(product => product.discount && product.discount > 0)
-        break
-      case 'new-arrivals':
-        const thirtyDaysAgo = new Date()
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-        filtered = filtered.filter(product => {
-          if (!product.createdAt) return false
-          return new Date(product.createdAt) > thirtyDaysAgo
-        })
-        break
-    }
-
-    setFilteredProducts(filtered)
-  }, [searchQuery, activeFilter])
 
   return (
     <div className={`flex flex-col min-h-screen ${isDarkMode ? 'bg-black text-white' : 'bg-white text-black'}`}>
@@ -96,14 +101,27 @@ export default function ShopPage() {
           </div>
         </div>
 
-        {filteredProducts.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading products...</p>
+          </div>
+        ) : products.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-xl">No products found</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredProducts.map(product => (
-              <ProductCard key={product.id} {...product} />
+            {products.map(product => (
+              <ProductCard
+                key={product.id}
+                id={product.id}
+                title={product.name}
+                price={product.price}
+                image={product.images[0]}
+                rating={4.5}
+                reviewCount={0}
+              />
             ))}
           </div>
         )}
@@ -111,57 +129,63 @@ export default function ShopPage() {
 
       {/* Filter Menu */}
       <div
-        className={`fixed inset-0 bg-black/50 transition-opacity z-40 ${
-          isFilterOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
+        className={`fixed inset-0 bg-black/50 transition-opacity z-40 ${isFilterOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
         onClick={() => setIsFilterOpen(false)}
       />
       <div
-        className={`fixed bottom-0 left-0 right-0 p-6 transition-transform duration-300 z-50 ${
-          isDarkMode ? 'bg-gray-900' : 'bg-white'
-        } rounded-t-2xl shadow-xl ${
-          isFilterOpen ? 'translate-y-0' : 'translate-y-full'
-        }`}
+        className={`fixed bottom-0 left-0 right-0 p-6 transition-transform duration-300 z-50 ${isDarkMode ? 'bg-gray-900' : 'bg-white'
+          } rounded-t-2xl shadow-xl ${isFilterOpen ? 'translate-y-0' : 'translate-y-full'
+          }`}
       >
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold">Filter Products</h2>
+          <h2 className="text-xl font-bold">Filter by Category</h2>
           <button onClick={() => setIsFilterOpen(false)}>
             <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
         <div className="space-y-4">
-          {(['all', 'on-sale', 'new-arrivals'] as FilterType[]).map(filter => (
+          <button
+            key="all"
+            onClick={() => {
+              setActiveCategory('all')
+              setIsFilterOpen(false)
+            }}
+            className={`w-full py-3 px-4 rounded-lg transition-colors ${activeCategory === 'all'
+                ? (isDarkMode ? 'bg-white text-black' : 'bg-black text-white')
+                : (isDarkMode ? 'border-gray-700 border' : 'border-gray-200 border')
+              }`}
+          >
+            All Products
+          </button>
+          {categories.map(category => (
             <button
-              key={filter}
+              key={category.id}
               onClick={() => {
-                setActiveFilter(filter)
+                setActiveCategory(category.id)
                 setIsFilterOpen(false)
               }}
-              className={`w-full py-3 px-4 rounded-lg transition-colors ${
-                activeFilter === filter
+              className={`w-full py-3 px-4 rounded-lg transition-colors ${activeCategory === category.id
                   ? (isDarkMode ? 'bg-white text-black' : 'bg-black text-white')
                   : (isDarkMode ? 'border-gray-700 border' : 'border-gray-200 border')
-              }`}
+                }`}
             >
-              {filter.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+              {category.name}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Search Menu */}
+      {/* Search Menu - remains the same */}
       <div
-        className={`fixed inset-0 bg-black/50 transition-opacity z-40 ${
-          isSearchOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
+        className={`fixed inset-0 bg-black/50 transition-opacity z-40 ${isSearchOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
         onClick={() => setIsSearchOpen(false)}
       />
       <div
-        className={`fixed bottom-0 left-0 right-0 p-6 transition-transform duration-300 z-50 ${
-          isDarkMode ? 'bg-gray-900' : 'bg-white'
-        } rounded-t-2xl shadow-xl ${
-          isSearchOpen ? 'translate-y-0' : 'translate-y-full'
-        }`}
+        className={`fixed bottom-0 left-0 right-0 p-6 transition-transform duration-300 z-50 ${isDarkMode ? 'bg-gray-900' : 'bg-white'
+          } rounded-t-2xl shadow-xl ${isSearchOpen ? 'translate-y-0' : 'translate-y-full'
+          }`}
       >
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold">Search Products</h2>
@@ -175,11 +199,10 @@ export default function ShopPage() {
             placeholder="Search products..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className={`w-full px-4 py-3 rounded-lg ${
-              isDarkMode 
-                ? 'bg-gray-800 text-white placeholder:text-gray-400' 
+            className={`w-full px-4 py-3 rounded-lg ${isDarkMode
+                ? 'bg-gray-800 text-white placeholder:text-gray-400'
                 : 'bg-gray-100 text-black placeholder:text-gray-500'
-            }`}
+              }`}
           />
         </div>
       </div>

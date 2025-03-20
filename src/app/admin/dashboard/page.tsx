@@ -70,19 +70,19 @@ export default function Dashboard() {
   const stats = [
     { 
       title: 'Total Revenue', 
-      value: `₦${(dashboardData.totalRevenue / 1000000).toFixed(1)}M`, 
+      value: dashboardData.totalRevenue ? `₦${(dashboardData.totalRevenue / 1000000).toFixed(1)}M` : '₦0M', 
       icon: CurrencyDollarIcon,
       change: '+12.5%'
     },
     { 
       title: 'Total Orders', 
-      value: dashboardData.totalOrders.toString(), 
+      value: dashboardData.totalOrders?.toString() || '0', 
       icon: ShoppingBagIcon,
       change: '+8.2%'
     },
     { 
       title: 'Total Customers', 
-      value: dashboardData.totalCustomers.toString(), 
+      value: dashboardData.totalCustomers?.toString() || '0', 
       icon: UserGroupIcon,
       change: '+15.3%'
     },
@@ -131,7 +131,7 @@ export default function Dashboard() {
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Orders</h2>
           <div className="space-y-4">
-            {dashboardData.recentOrders.map((order) => (
+            {dashboardData.recentOrders?.map((order) => (
               <div key={order.id} className="flex items-center justify-between py-2 border-b">
                 <div>
                   <p className="font-medium text-gray-900">Order #{order.id}</p>
@@ -155,7 +155,7 @@ export default function Dashboard() {
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Popular Products</h2>
           <div className="space-y-4">
-            {dashboardData.popularProducts.map((product) => (
+            {dashboardData.popularProducts?.map((product) => (
               <div key={product.id} className="flex items-center gap-4 py-2 border-b">
                 <div className="w-12 h-12 bg-gray-100 rounded">
                   {product.images[0] && (

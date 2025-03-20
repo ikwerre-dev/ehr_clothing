@@ -1,26 +1,55 @@
 'use client'
-import type { Metadata } from 'next'
-import { useState } from 'react'
-import { use } from 'react'
+import { useState, useEffect } from 'react'
 import { StarIcon } from '@heroicons/react/24/solid'
 import { useDarkMode } from '@/context/DarkModeContext'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
-import productsData from '@/data/products.json'
 import { useCart } from '@/context/CartContext'
 import Image from 'next/image'
+import { useParams } from 'next/navigation'
+
+interface Product {
+  id: string
+  name: string
+  description: string
+  price: number
+  images: string[]
+  stock: number
+  category: {
+    name: string
+  }
+}
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 const COLORS = ['Black', 'White', 'Navy', 'Gray', 'Red']
 
-export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+export default function ProductPage() {
   const { isDarkMode } = useDarkMode()
   const { addItem } = useCart()
+  const params = useParams()
   const [selectedSize, setSelectedSize] = useState('')
   const [selectedColor, setSelectedColor] = useState('')
-  
-  const { id } = use(params)
-  const product = productsData.products.find(p => p.id === id)
+  const [product, setProduct] = useState<Product | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch(`/api/products/${params.id}`)
+        if (!response.ok) throw new Error('Product not found')
+        const data = await response.json()
+        setProduct(data)
+      } catch (error) {
+        console.error('Failed to fetch product:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    if (params.id) {
+      fetchProduct()
+    }
+  }, [params.id])
 
   const handleAddToCart = () => {
     if (!selectedSize || !selectedColor) {
@@ -31,15 +60,26 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     if (product) {
       addItem({
         id: product.id,
-        title: product.title,
+        title: product.name,
         price: product.price,
         quantity: 1,
         size: selectedSize,
         color: selectedColor,
-        image: product.image
+        image: product.images[0]
       })
       alert('Added to cart successfully!')
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading product...</p>
+        </div>
+      </div>
+    )
   }
 
   if (!product) {
@@ -55,8 +95,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             <div className="space-y-4">
               <div className="aspect-square rounded-lg overflow-hidden">
                 <Image
-                  src={product.image}
-                  alt={product.title}
+                  src={product.images[0]}
+                  alt={product.name}
                   width={500}
                   height={500}
                   className="w-full h-full object-cover"
@@ -65,34 +105,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             </div>
 
             <div className="space-y-6">
-              <h1 className="text-3xl font-bold">{product.title}</h1>
+              <h1 className="text-3xl font-bold">{product.name}</h1>
+              <p className="text-2xl font-bold">₦{product.price.toLocaleString()}</p>
               
-              <div className="flex items-center gap-2">
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <StarIcon
-                      key={i}
-                      className={`h-5 w-5 ${i < product.rating ? 'text-yellow-400' : isDarkMode ? 'text-gray-600' : 'text-gray-200'}`}
-                    />
-                  ))}
-                </div>
-                <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
-                  ({product.reviewCount} reviews)
-                </span>
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-2xl font-bold">₦{product.price.toLocaleString()}</p>
-                {product.originalPrice && (
-                  <p className={isDarkMode ? 'text-gray-300 line-through' : 'text-gray-600 line-through'}>
-                    ₦{product.originalPrice.toLocaleString()}
-                  </p>
-                )}
-                {product.discount && (
-                  <p className="text-red-600">-{product.discount}% OFF</p>
-                )}
-              </div>
-
+              {/* Size and Color selection remains the same */}
               <div className="space-y-4">
                 <div>
                   <h3 className="font-medium mb-2">Select Size</h3>
@@ -135,20 +151,26 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
               <button
                 onClick={handleAddToCart}
+                disabled={product.stock === 0}
                 className={`w-full py-3 rounded-lg transition-colors ${
-                  isDarkMode 
-                    ? 'bg-white text-black hover:bg-gray-200' 
-                    : 'bg-black text-white hover:bg-gray-800'
+                  product.stock === 0 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : isDarkMode 
+                      ? 'bg-white text-black hover:bg-gray-200' 
+                      : 'bg-black text-white hover:bg-gray-800'
                 }`}
               >
-                Add to Cart
+                {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
               </button>
 
               <div className={`prose ${isDarkMode ? 'prose-invert' : ''} max-w-none`}>
-                <h3>Product Description</h3>
-                <p>{product.description || "Experience premium quality and style with this carefully crafted piece from our collection."}</p>
+                <h3  className="text-lg mt-5 font-bold">Product Description</h3>
+                <p>{product.description}</p>
                 
-                <h3>Features</h3>
+                <h3 className="text-lg mt-5 font-bold">Category</h3>
+                <p>{product.category.name}</p>
+
+                <h3 className="text-lg mt-5 font-bold">Features</h3>
                 <ul>
                   <li>Premium quality material</li>
                   <li>Comfortable fit</li>

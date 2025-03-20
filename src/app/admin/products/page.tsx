@@ -67,8 +67,39 @@ export default function ProductsPage() {
         }
     }
 
+    // Add new state at the top with other states
+    const [deletingProductId, setDeletingProductId] = useState<string | null>(null)
+
+    // Add handleDelete function
+    const handleDelete = async (productId: string) => {
+        if (!confirm('Are you sure you want to delete this product?')) return
+
+        setDeletingProductId(productId)
+        try {
+            const response = await fetch(`/api/admin/products/${productId}`, {
+                method: 'DELETE',
+            })
+
+            if (!response.ok) {
+                const error = await response.json()
+                throw new Error(error.message || 'Failed to delete product')
+            }
+
+            setProducts(products.filter(p => p.id !== productId))
+        } catch (error: any) {
+            alert(error.message || 'Failed to delete product')
+        } finally {
+            setDeletingProductId(null)
+        }
+    }
+
+
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
+    // Update handleAddProduct function
     const handleAddProduct = async (e: React.FormEvent) => {
         e.preventDefault()
+        setIsSubmitting(true)
         try {
             const response = await fetch('/api/admin/products', {
                 method: 'POST',
@@ -78,21 +109,26 @@ export default function ProductsPage() {
                 body: JSON.stringify(newProduct),
             })
 
-            if (response.ok) {
-                const newProductData = await response.json()
-                setProducts([...products, newProductData])
-                setIsAddModalOpen(false)
-                setNewProduct({
-                    title: '',
-                    price: '',
-                    description: '',
-                    image: '',
-                    categoryId: '',
-                    stock: '0',
-                })
+            if (!response.ok) {
+                const error = await response.json()
+                throw new Error(error.message || 'Failed to add product')
             }
-        } catch (error) {
-            console.error('Failed to add product:', error)
+
+            const newProductData = await response.json()
+            setProducts([...products, newProductData])
+            setIsAddModalOpen(false)
+            setNewProduct({
+                title: '',
+                price: '',
+                description: '',
+                image: '',
+                categoryId: '',
+                stock: '0',
+            })
+        } catch (error: any) {
+            alert(error.message || 'Failed to add product')
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
@@ -129,22 +165,10 @@ export default function ProductsPage() {
         }
     }
 
-
-    if (isLoading) {
-        return (
-            <div className="h-full flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading products...</p>
-                </div>
-            </div>
-        )
-    }
-    // Add new state for edit modal
-    // Add handleEdit function
     const handleEdit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!editingProduct) return
+        setIsSubmitting(true)
 
         try {
             const response = await fetch(`/api/admin/products/${editingProduct.id}`, {
@@ -171,9 +195,20 @@ export default function ProductsPage() {
         } catch (error) {
             console.error('Failed to update product:', error)
         }
+        setIsSubmitting(false)
+
     }
 
-    // Update the edit button in the products table
+    if (isLoading) {
+        return (
+            <div className="h-full flex items-center justify-center">
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading products...</p>
+                </div>
+            </div>
+        )
+    }
 
 
     // Add Edit Modal
@@ -239,9 +274,17 @@ export default function ProductsPage() {
                                         <PencilIcon className="w-5 h-5" />
                                     </button>
 
-
-                                    <button className="text-red-600 hover:text-red-900">
-                                        <TrashIcon className="w-5 h-5" />
+                                    <button
+                                        onClick={() => handleDelete(product.id)}
+                                        disabled={deletingProductId === product.id}
+                                        className={`text-red-600 hover:text-red-900 ${deletingProductId === product.id ? 'opacity-50 cursor-not-allowed' : ''
+                                            }`}
+                                    >
+                                        {deletingProductId === product.id ? (
+                                            <div className="w-5 h-5 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                                        ) : (
+                                            <TrashIcon className="w-5 h-5" />
+                                        )}
                                     </button>
                                 </td>
                             </tr>
@@ -374,16 +417,17 @@ export default function ProductsPage() {
                                 >
                                     Cancel
                                 </button>
+
                                 <button
                                     type="submit"
-                                    disabled={imageUploading}
-                                    className={`px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 ${imageUploading ? 'cursor-not-allowed' : ''
+                                    disabled={imageUploading || isSubmitting}
+                                    className={`px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 ${(imageUploading || isSubmitting) ? 'cursor-not-allowed' : ''
                                         }`}
                                 >
-                                    {imageUploading ? (
+                                    {isSubmitting ? (
                                         <div className="flex items-center">
                                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                            Loading...
+                                            Adding...
                                         </div>
                                     ) : (
                                         'Add Product'
@@ -549,11 +593,18 @@ export default function ProductsPage() {
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={imageUploading}
-                                    className={`px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 ${imageUploading ? 'cursor-not-allowed' : ''
+                                    disabled={imageUploading || isSubmitting}
+                                    className={`px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 ${(imageUploading || isSubmitting) ? 'cursor-not-allowed' : ''
                                         }`}
                                 >
-                                    Update Product
+                                    {isSubmitting ? (
+                                        <div className="flex items-center">
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                            Updating...
+                                        </div>
+                                    ) : (
+                                        'Update Product'
+                                    )}
                                 </button>
                             </div>
                         </form>
@@ -565,3 +616,4 @@ export default function ProductsPage() {
     )
 
 }
+

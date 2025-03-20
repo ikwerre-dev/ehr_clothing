@@ -1,0 +1,170 @@
+{
+  "products": [
+    {
+      "id": "1",
+      "title": "Classic Cotton T-Shirt",
+      "description": "A timeless essential crafted from premium cotton fabric. Features a comfortable regular fit and durable stitching, perfect for everyday wear. Available in multiple colors.",
+      "price": 15000,
+      "originalPrice": 18000,
+      "rating": 4.5,
+      "reviewCount": 128,
+      "image": "/product1.png",
+      "discount": 15,
+      "category": "new-arrivals"
+    },
+    {
+      "id": "2",
+      "title": "Premium Denim Jacket",
+      "description": "A timeless essential crafted from premium cotton fabric. Features a comfortable regular fit and durable stitching, perfect for everyday wear. Available in multiple colors.",
+      "price": 45000,
+      "originalPrice": 60000,
+      "rating": 4.8,
+      "reviewCount": 89,
+      "image": "/product2.png",
+      "discount": 25,
+      "category": "featured"
+    },
+    {
+      "id": "3",
+      "title": "Slim Fit Chinos",
+      "description": "A timeless essential crafted from premium cotton fabric. Features a comfortable regular fit and durable stitching, perfect for everyday wear. Available in multiple colors.",
+      "price": 22000,
+      "rating": 4.3,
+      "reviewCount": 156,
+      "image": "/product1.png",
+      "category": "best-sellers"
+    },
+    {
+      "id": "4",
+      "title": "Casual Hoodie",
+      "description": "A timeless essential crafted from premium cotton fabric. Features a comfortable regular fit and durable stitching, perfect for everyday wear. Available in multiple colors.",
+      "price": 28000,
+      "originalPrice": 35000,
+      "rating": 4.6,
+      "reviewCount": 203,
+      "image": "/product2.png",
+      "discount": 20,
+      "category": "on-sale"
+    },
+    {
+      "id": "5",
+      "title": "Striped Polo Shirt",
+      "description": "A timeless essential crafted from premium cotton fabric. Features a comfortable regular fit and durable stitching, perfect for everyday wear. Available in multiple colors.",
+      "price": 18000,
+      "rating": 4.4,
+      "reviewCount": 167,
+      "image": "/product1.png",
+      "category": "new-arrivals"
+    },
+    {
+      "id": "6",
+      "title": "Leather Bomber Jacket",
+      "description": "A timeless essential crafted from premium cotton fabric. Features a comfortable regular fit and durable stitching, perfect for everyday wear. Available in multiple colors.",
+      "price": 65000,
+      "originalPrice": 80000,
+      "rating": 4.9,
+      "reviewCount": 78,
+      "image": "/product2.png",
+      "discount": 20,
+      "category": "featured"
+    },
+    {
+      "id": "7",
+      "title": "Cargo Pants",
+      "description": "A timeless essential crafted from premium cotton fabric. Features a comfortable regular fit and durable stitching, perfect for everyday wear. Available in multiple colors.",
+      "price": 25000,
+      "rating": 4.2,
+      "reviewCount": 143,
+      "image": "/product1.png",
+      "category": "best-sellers"
+    },
+    {
+      "id": "8",
+      "title": "Graphic Print T-Shirt",
+      "description": "A timeless essential crafted from premium cotton fabric. Features a comfortable regular fit and durable stitching, perfect for everyday wear. Available in multiple colors.",
+      "price": 12000,
+      "originalPrice": 15000,
+      "rating": 4.3,
+      "reviewCount": 192,
+      "image": "/product2.png",
+      "discount": 20,
+      "category": "on-sale"
+    },
+    {
+      "id": "9",
+      "title": "Wool Blend Sweater",
+      "description": "A timeless essential crafted from premium cotton fabric. Features a comfortable regular fit and durable stitching, perfect for everyday wear. Available in multiple colors.",
+      "price": 35000,
+      "rating": 4.7,
+      "reviewCount": 112,
+      "image": "/product1.png",
+      "category": "new-arrivals"
+    },
+    {
+      "id": "10",
+      "title": "Track Pants",
+      "description": "A timeless essential crafted from premium cotton fabric. Features a comfortable regular fit and durable stitching, perfect for everyday wear. Available in multiple colors.",
+      "price": 20000,
+      "originalPrice": 25000,
+      "rating": 4.4,
+      "reviewCount": 167,
+      "image": "/product2.png",
+      "discount": 20,
+      "category": "on-sale"
+    },
+    {
+      "id": "11",
+      "title": "Oxford Shirt",
+      "description": "A timeless essential crafted from premium cotton fabric. Features a comfortable regular fit and durable stitching, perfect for everyday wear. Available in multiple colors.",
+      "price": 24000,
+      "rating": 4.6,
+      "reviewCount": 145,
+      "image": "/product1.png",
+      "category": "best-sellers"
+    },
+    {
+      "id": "12",
+      "title": "Quilted Jacket",
+      "description": "A timeless essential crafted from premium cotton fabric. Features a comfortable regular fit and durable stitching, perfect for everyday wear. Available in multiple colors.",
+      "price": 42000,
+      "originalPrice": 50000,
+      "rating": 4.5,
+      "reviewCount": 98,
+      "image": "/product2.png",
+      "discount": 16,
+      "category": "featured"
+    },
+    {
+      "id": "13",
+      "title": "V-Neck T-Shirt",
+      "description": "A timeless essential crafted from premium cotton fabric. Features a comfortable regular fit and durable stitching, perfect for everyday wear. Available in multiple colors.",
+      "price": 13000,
+      "rating": 4.3,
+      "reviewCount": 178,
+      "image": "/product1.png",
+      "category": "new-arrivals"
+    },
+    {
+      "id": "14",
+      "title": "Slim Fit Jeans",
+      "description": "A timeless essential crafted from premium cotton fabric. Features a comfortable regular fit and durable stitching, perfect for everyday wear. Available in multiple colors.",
+      "price": 28000,
+      "originalPrice": 35000,
+      "rating": 4.7,
+      "reviewCount": 223,
+      "image": "/product2.png",
+      "discount": 20,
+      "category": "on-sale"
+    },
+    {
+      "id": "15",
+      "title": "Crewneck Sweatshirt",
+      "description": "A timeless essential crafted from premium cotton fabric. Features a comfortable regular fit and durable stitching, perfect for everyday wear. Available in multiple colors.",
+      "price": 26000,
+      "rating": 4.5,
+      "reviewCount": 156,
+      "image": "/product1.png",
+      "category": "best-sellers"
+    }
+  ]
+}

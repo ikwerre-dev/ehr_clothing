@@ -5,24 +5,28 @@ import Cookies from 'js-cookie'
 
 interface AdminAuthContextType {
   isAuthenticated: boolean
+  isLoading: boolean
   login: (email: string, password: string) => Promise<boolean>
   logout: () => void
 }
 
 const AdminAuthContext = createContext<AdminAuthContextType>({
   isAuthenticated: false,
+  isLoading: true,
   login: async () => false,
   logout: () => {},
 })
 
 export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const auth = Cookies.get('adminAuth')
     if (auth) {
       setIsAuthenticated(true)
     }
+    setIsLoading(false)
   }, [])
 
   const login = async (email: string, password: string) => {
@@ -42,7 +46,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AdminAuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AdminAuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
       {children}
     </AdminAuthContext.Provider>
   )

@@ -8,6 +8,7 @@ export default function AdminPage() {
   const { isAuthenticated } = useAdminAuth()
   const router = useRouter()
 
+  console.log(isAuthenticated)
   useEffect(() => {
     if (isAuthenticated) {
       router.push('/admin/dashboard')

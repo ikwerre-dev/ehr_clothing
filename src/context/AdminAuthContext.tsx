@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect } from 'react'
+import Cookies from 'js-cookie'
 
 interface AdminAuthContextType {
   isAuthenticated: boolean
@@ -18,7 +19,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   useEffect(() => {
-    const auth = localStorage.getItem('adminAuth')
+    const auth = Cookies.get('adminAuth')
     if (auth) {
       setIsAuthenticated(true)
     }
@@ -27,7 +28,8 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     // In a real app, this would be an API call
     if (email === 'admin@ehr.com' && password === 'admin123') {
-      localStorage.setItem('adminAuth', 'true')
+      // Set cookie to expire in 7 days
+      Cookies.set('adminAuth', 'true', { expires: 7, secure: true })
       setIsAuthenticated(true)
       return true
     }
@@ -35,7 +37,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = () => {
-    localStorage.removeItem('adminAuth')
+    Cookies.remove('adminAuth')
     setIsAuthenticated(false)
   }
 

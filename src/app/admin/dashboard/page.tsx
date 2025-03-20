@@ -23,15 +23,15 @@ export default function Dashboard() {
           <div key={stat.title} className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">{stat.title}</p>
-                <p className="text-2xl font-semibold mt-1">{stat.value}</p>
+                <p className="text-sm text-gray-600">{stat.title}</p>
+                <p className="text-2xl font-semibold mt-1 text-gray-900">{stat.value}</p>
               </div>
               <div className="bg-blue-50 p-3 rounded-lg">
                 <stat.icon className="w-6 h-6 text-blue-600" />
               </div>
             </div>
             <div className="mt-4">
-              <span className="text-green-600 text-sm font-medium">{stat.change}</span>
+              <span className="text-emerald-600 text-sm font-medium">{stat.change}</span>
               <span className="text-gray-500 text-sm ml-2">vs last month</span>
             </div>
           </div>
@@ -40,13 +40,13 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-semibold mb-4">Recent Orders</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Orders</h2>
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="flex items-center justify-between py-2 border-b">
                 <div>
-                  <p className="font-medium">Order #{2024001 + i}</p>
-                  <p className="text-sm text-gray-500">2 items • ₦45,000</p>
+                  <p className="font-medium text-gray-900">Order #{2024001 + i}</p>
+                  <p className="text-sm text-gray-600">2 items • <span className="text-gray-900">₦45,000</span></p>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-sm ${
                   i % 3 === 0 ? 'bg-green-100 text-green-800' :
@@ -61,14 +61,17 @@ export default function Dashboard() {
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-semibold mb-4">Popular Products</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Popular Products</h2>
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="flex items-center gap-4 py-2 border-b">
                 <div className="w-12 h-12 bg-gray-100 rounded" />
                 <div className="flex-1">
-                  <p className="font-medium">Product Name {i + 1}</p>
-                  <p className="text-sm text-gray-500">₦{(15000 + i * 1000).toLocaleString()} • {50 - i * 5} sales</p>
+                  <p className="font-medium text-gray-900">Product Name {i + 1}</p>
+                  <p className="text-sm text-gray-600">
+                    <span className="text-gray-900">₦{(15000 + i * 1000).toLocaleString()}</span> • 
+                    <span className="text-blue-600">{50 - i * 5} sales</span>
+                  </p>
                 </div>
               </div>
             ))}

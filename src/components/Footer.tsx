@@ -51,7 +51,8 @@ export function Footer() {
         </div>
 
         <div className={`border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} mt-12 pt-8 text-center`}>
-          <p>© 2024 EHR. All rights reserved.</p>
+        <p>© 2024 EHR. All rights reserved.</p>
+        <p>Powered by <Link className='underline font-bold' href={'https://robinsonhonour.me'}>Robinson's Media</Link></p>
         </div>
       </div>
     </footer>

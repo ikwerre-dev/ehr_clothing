@@ -44,7 +44,7 @@ export function HeroBanner() {
 
         <div className="relative h-[30rem] overflow-hidden rounded-lg shadow-lg">
           <Image
-            src="/product2.png"
+            src="/product1.png"
             alt="Fashion Models"
             layout="fill"
             className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"

@@ -18,7 +18,7 @@ interface ProductCardProps {
 
 export function ProductCard({ id, title, price, originalPrice, rating, reviewCount, image, discount }: ProductCardProps) {
   const { isDarkMode } = useDarkMode()
-
+  console.log(reviewCount)
   return (
     <Link href={`/product/${id}`} className={`group border pb-5 rounded-lg ${isDarkMode ? 'border-[#222]' : 'border-[#666]'}`}>
       <div className={`aspect-square overflow-hidden rounded-lg`}>
@@ -42,7 +42,7 @@ export function ProductCard({ id, title, price, originalPrice, rating, reviewCou
               />
             ))}
           </div>
-          <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>({reviewCount})</span>
+          {/* <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>({reviewCount})</span> */}
         </div>
         <div className="flex items-center gap-2 mt-1">
           <span className="font-medium">₦{price.toLocaleString()}</span>

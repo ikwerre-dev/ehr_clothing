@@ -16,8 +16,12 @@ import {
   ArrowRightOnRectangleIcon,
   FolderIcon // Add this import
 } from '@heroicons/react/24/outline'
+import { useState } from 'react'
+import { Bars3Icon } from '@heroicons/react/24/outline'
+// import { ArrowDown } from 'lucide-react'
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const { isAuthenticated, isLoading, logout } = useAdminAuth()
   const router = useRouter()
   const pathname = usePathname()
@@ -44,8 +48,20 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
         </div>
       ) : isAuthenticated ? (
         <div className="flex h-screen bg-gray-100">
+          {/* Mobile sidebar backdrop */}
+          {sidebarOpen && (
+            <div
+              className="fixed inset-0 bg-gray-600 bg-opacity-75 z-20 lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+
           {/* Sidebar */}
-          <div className="w-64 bg-white shadow-lg flex flex-col">
+          <div className={`
+                        fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-lg transform 
+                        lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out
+                        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+                    `}>
             <div className="p-6 border-b">
               <h1 className="text-2xl font-bold text-gray-900">EHR Admin</h1>
             </div>
@@ -99,6 +115,14 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
                 Analytics
               </Link>
 
+
+              {/* <Link href="/admin/transfers"
+                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${pathname === '/admin/analytics' ? 'bg-gray-100 text-gray-900' : ''
+                  }`}>
+                <ArrowDown className="w-5 h-5 mr-3" />
+                Withdraw
+              </Link> */}
+
               <Link href="/admin/coupons"
                 className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${pathname === '/admin/coupons' ? 'bg-gray-100 text-gray-900' : ''
                   }`}>
@@ -122,8 +146,18 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 overflow-auto">
-            <main className="p-6">
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Mobile header */}
+            <div className="lg:hidden bg-white shadow-sm">
+              <div className="px-4 py-3 flex items-center justify-between">
+                <h1 className="text-xl font-semibold">EHR Admin</h1>
+                <button onClick={() => setSidebarOpen(true)}>
+                  <Bars3Icon className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            <main className="flex-1 overflow-auto p-4 lg:p-6">
               {children}
             </main>
           </div>

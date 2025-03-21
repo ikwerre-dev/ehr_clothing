@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 import { Order, Product, Category } from '@prisma/client/wasm'
 
- 
+
 type ProductWithOrderItems = Product & {
   orderItems: Array<{
     price: number;
@@ -24,7 +24,7 @@ type CategoryWithProducts = Category & {
     }>;
   }>;
 }
- 
+
 
 type AnalyticsResponse = {
   stats: {
@@ -60,11 +60,11 @@ export async function GET(request: Request) {
     // Get time range from query params
     const { searchParams } = new URL(request.url)
     const timeRange = searchParams.get('timeRange') || '7days'
-    
+
     // Calculate date range based on timeRange
     const endDate = new Date()
     const startDate = new Date()
-    
+
     switch (timeRange) {
       case '7days':
         startDate.setDate(endDate.getDate() - 7)
@@ -81,7 +81,7 @@ export async function GET(request: Request) {
       default:
         startDate.setDate(endDate.getDate() - 7)
     }
-    
+
     // Get all data in parallel
     const [
       revenueData,
@@ -99,23 +99,28 @@ export async function GET(request: Request) {
           createdAt: {
             gte: startDate,
             lte: endDate
-          }
+          },
+          paymentStatus: 'PAID'
+
         },
+
         _sum: {
           total: true
         }
       }),
-      
+
       // Total orders
       prisma.order.count({
         where: {
           createdAt: {
             gte: startDate,
             lte: endDate
-          }
+          },
+          paymentStatus: 'PAID'
+
         }
       }),
-      
+
       // Total customers
       prisma.user.count({
         where: {
@@ -126,20 +131,22 @@ export async function GET(request: Request) {
           role: 'USER'
         }
       }),
-      
+
       // Average order value
       prisma.order.aggregate({
         where: {
           createdAt: {
             gte: startDate,
             lte: endDate
-          }
+          },
+          paymentStatus: 'PAID'
+
         },
         _avg: {
           total: true
         }
       }),
-      
+
       // Sales by day
       prisma.order.groupBy({
         by: ['createdAt'],
@@ -147,7 +154,9 @@ export async function GET(request: Request) {
           createdAt: {
             gte: startDate,
             lte: endDate
-          }
+          },
+          paymentStatus: 'PAID'
+
         },
         _sum: {
           total: true
@@ -156,7 +165,7 @@ export async function GET(request: Request) {
           createdAt: 'asc'
         }
       }),
-      
+
       // Sales by category
       prisma.category.findMany({
         where: {
@@ -168,7 +177,7 @@ export async function GET(request: Request) {
                     createdAt: {
                       gte: startDate,
                       lte: endDate
-                    }
+                    }, paymentStatus: 'PAID',
                   }
                 }
               }
@@ -184,7 +193,7 @@ export async function GET(request: Request) {
                     createdAt: {
                       gte: startDate,
                       lte: endDate
-                    }
+                    }, paymentStatus: 'PAID',
                   }
                 },
                 include: {
@@ -195,7 +204,7 @@ export async function GET(request: Request) {
           }
         }
       }),
-      
+
       // Customer types (new vs returning)
       prisma.$transaction([
         // New customers
@@ -224,7 +233,7 @@ export async function GET(request: Request) {
                 createdAt: {
                   gte: startDate,
                   lte: endDate
-                }
+                }, paymentStatus: 'PAID',
               }
             },
             AND: {
@@ -232,14 +241,14 @@ export async function GET(request: Request) {
                 some: {
                   createdAt: {
                     lt: startDate
-                  }
+                  }, paymentStatus: 'PAID',
                 }
               }
             }
           }
         })
       ]),
-      
+
       // Top products
       prisma.product.findMany({
         take: 5,
@@ -250,7 +259,7 @@ export async function GET(request: Request) {
                 createdAt: {
                   gte: startDate,
                   lte: endDate
-                }
+                }, paymentStatus: 'PAID',
               }
             }
           }
@@ -262,13 +271,22 @@ export async function GET(request: Request) {
                 createdAt: {
                   gte: startDate,
                   lte: endDate
-                }
+                }, paymentStatus: 'PAID',
               }
             }
           },
           _count: {
             select: {
-              orderItems: true
+              orderItems: {
+                where: {
+                  order: {
+                    createdAt: {
+                      gte: startDate,
+                      lte: endDate
+                    }, paymentStatus: 'PAID',
+                  }
+                }
+              }
             }
           }
         },
@@ -279,11 +297,11 @@ export async function GET(request: Request) {
         }
       })
     ])
-    
+
     // Process sales by day for chart
     const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     const salesByDayMap = new Map<string, number>()
-    
+
     // Initialize with zeros
     if (timeRange === '7days') {
       for (let i = 6; i >= 0; i--) {
@@ -293,7 +311,7 @@ export async function GET(request: Request) {
         salesByDayMap.set(dayName, 0)
       }
     }
-    
+
     // Fill with actual data
     // Add this interface near the top with other type definitions
     interface DailySales {
@@ -302,7 +320,7 @@ export async function GET(request: Request) {
         total: number | null;
       };
     }
-    
+
     // Update the forEach loop with the proper type
     salesByDay.forEach((day: DailySales) => {
       const date = new Date(day.createdAt)
@@ -313,7 +331,7 @@ export async function GET(request: Request) {
         salesByDayMap.set(dayName, day._sum.total || 0)
       }
     })
-    
+
     // Process sales by category
     const salesByCategories = salesByCategory.map((category: CategoryWithProducts) => {
       const totalSales = category.products.reduce((sum, product) => {
@@ -322,22 +340,22 @@ export async function GET(request: Request) {
         }, 0)
         return sum + productSales
       }, 0)
-      
+
       return {
         name: category.name,
         sales: totalSales
       }
     }).sort((a: { name: string, sales: number }, b: { name: string, sales: number }) => b.sales - a.sales).slice(0, 5)
-    
+
     // Process top products
     const formattedTopProducts = topProducts.map((product: ProductWithOrderItems) => {
       const totalSales = product.orderItems.reduce((sum, item) => {
         return sum + (item.price * item.quantity)
       }, 0)
-      
+
       const totalRevenueAmount = revenueData._sum.total || 1
       const percentageOfSales = totalRevenueAmount > 0 ? (totalSales / totalRevenueAmount) * 100 : 0
-      
+
       return {
         id: product.id,
         name: product.name,
@@ -347,7 +365,7 @@ export async function GET(request: Request) {
         percentageOfSales: Math.round(percentageOfSales)
       }
     })
-    
+
     return NextResponse.json({
       stats: {
         totalRevenue: revenueData._sum.total || 0,

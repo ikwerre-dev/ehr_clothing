@@ -53,6 +53,9 @@ export async function GET() {
             prisma.order.aggregate({
                 _sum: {
                     total: true
+                },
+                where: {
+                    paymentStatus: 'PAID'
                 }
             }),
 

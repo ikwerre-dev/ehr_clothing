@@ -6,8 +6,11 @@ export async function GET() {
         const latestCoupon = await prisma.coupon.findFirst({
             where: {
                 status: 'active',
-                expiryDate: {
+                validUntil: {
                     gte: new Date()
+                },
+                usedCount: {
+                    lt: prisma.coupon.fields.usageLimit
                 }
             },
             orderBy: {
@@ -15,13 +18,19 @@ export async function GET() {
             },
             select: {
                 code: true,
-                discount: true
+                discount: true,
+                type: true,
+                validUntil: true,
+                maxUses: true,
+                usedCount: true
             }
         })
 
+ 
         if (!latestCoupon) {
             return NextResponse.json(null)
         }
+
 
         return NextResponse.json(latestCoupon)
     } catch (error) {

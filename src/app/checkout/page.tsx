@@ -7,11 +7,10 @@ import { useCart } from '@/context/CartContext'
 import { useDarkMode } from '@/context/DarkModeContext'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-
+ 
 export default function CheckoutPage() {
     const { isDarkMode } = useDarkMode()
-    const { items, clearCart } = useCart()
+    const { items } = useCart()
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -46,7 +45,7 @@ export default function CheckoutPage() {
     const total = subtotal + shipping - discount
     
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const router = useRouter()
+    // const router = useRouter()
 
     // Handle coupon validation
     const validateCoupon = async () => {
@@ -131,8 +130,9 @@ export default function CheckoutPage() {
             }
 
             const data = await response.json()
-            clearCart()
-            router.push(`/order-confirmation?reference=${data.reference}`)
+            console.log(data)
+            document.location.href = data.paymentUrl
+            // router.push(`/order-confirmation?reference=${data.reference}`)
         } catch (error) {
             console.error('Error creating order:', error)
             alert('Failed to place order. Please try again.')

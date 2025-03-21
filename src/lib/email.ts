@@ -68,7 +68,7 @@ export async function sendOrderStatusUpdateEmail(
 
   const message = statusMessages[details.status as keyof typeof statusMessages]
   const statusColor = statusColors[details.status as keyof typeof statusColors]
-  
+
   const content = `
     <h2>Order Status Update</h2>
     <p>Dear ${details.customerName},</p>
@@ -86,7 +86,7 @@ export async function sendOrderStatusUpdateEmail(
   `
 
   await transporter.sendMail({
-    from: process.env.SMTP_USER,
+    from: `E.H.R Clothing <${process.env.SMTP_USER}>`,
     to: email,
     subject: `Order Status Update - ${details.reference}`,
     html: emailTemplate(content),
@@ -99,6 +99,7 @@ interface OrderItem {
   quantity: number
   price: number
   size: string
+  name: string
   color: string
   title: string
   product?: {
@@ -143,28 +144,27 @@ export async function sendAdminOrderNotification(
     <h3>Items:</h3>
     <ul>
       ${orderDetails.items
-        .map(
-          (item) => `
+      .map(
+        (item) => `
         <li>
           ${item.quantity}x ${item.title} (Size: ${item.size}, Color: ${item.color})
           - ₦${(item.price * item.quantity).toLocaleString()}
         </li>
       `
-        )
-        .join('')}
+      )
+      .join('')}
     </ul>
     
     <p>Subtotal: ₦${orderDetails.subtotal.toLocaleString()}</p>
     <p>Shipping: ₦${orderDetails.shipping.toLocaleString()}</p>
-    ${orderDetails.discount && orderDetails.discount > 0 ? 
-      `<p>Discount: -₦${orderDetails.discount.toLocaleString()}${
-        orderDetails.coupon ? ` (Coupon: ${orderDetails.coupon.code})` : ''
+    ${orderDetails.discount && orderDetails.discount > 0 ?
+      `<p>Discount: -₦${orderDetails.discount.toLocaleString()}${orderDetails.coupon ? ` (Coupon: ${orderDetails.coupon.code})` : ''
       }</p>` : ''}
     <p>Total: ₦${orderDetails.total.toLocaleString()}</p>
   `
 
   await transporter.sendMail({
-    from: process.env.SMTP_USER,
+    from: `E.H.R Clothing <${process.env.SMTP_USER}>`,
     to: 'codewithhonour@gmail.com',
     subject: `New Order Alert - ${orderDetails.reference}`,
     html: emailContent,
@@ -197,8 +197,8 @@ export async function sendOrderConfirmationEmail(
       <h3>Items:</h3>
       <ul style="list-style: none; padding: 0;">
         ${orderDetails.items
-          .map(
-            (item) => `
+      .map(
+        (item) => `
           <li style="padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
             <div>
               <strong>${item.title}</strong><br>
@@ -209,8 +209,8 @@ export async function sendOrderConfirmationEmail(
             </div>
           </li>
         `
-          )
-          .join('')}
+      )
+      .join('')}
       </ul>
     </div>
     
@@ -241,9 +241,72 @@ export async function sendOrderConfirmationEmail(
   `
 
   await transporter.sendMail({
-    from: process.env.SMTP_USER,
+    from: `E.H.R Clothing <${process.env.SMTP_USER}>`,
     to: email,
     subject: `Order Confirmation - ${orderDetails.reference}`,
     html: emailTemplate(content),
   })
+}
+
+
+
+
+export async function sendPaymentConfirmationEmail(to: string, data: {
+  reference: string;
+  customerName: string;
+  amount: number;
+  items: OrderItem[];
+}) {
+  const { reference, customerName, amount, items } = data;
+
+  const content = `
+    <h2>Payment Successful!</h2>
+    <p>Dear ${customerName},</p>
+    <p>Thank you for your payment of ₦${amount.toLocaleString()}. Your order (${reference}) is now being processed.</p>
+    <h3>Order Details:</h3>
+    <ul>
+      ${items.map(item => `<li>${item.name} x ${item.quantity} - ₦${item.price.toLocaleString()}</li>`).join('')}
+    </ul>
+    <p>Total: ₦${amount.toLocaleString()}</p>
+    <p>We’ll notify you once your order has been shipped.</p>
+    <p>Best regards,<br>E.H.R Clothing Team</p>
+  `;
+
+  await transporter.sendMail({
+    from: `E.H.R Clothing <${process.env.SMTP_USER}>`,
+    to,
+    subject: 'Payment Confirmed - Your Order is Being Processed',
+    html: emailTemplate(content),
+  });
+}
+
+export async function sendAdminPaymentNotification(data: {
+  to: string;
+  reference: string;
+  customerName: string;
+  customerEmail: string;
+  amount: number;
+  items: OrderItem[];
+}) {
+  const { to, reference, customerName, customerEmail, amount, items } = data;
+
+  const content = `
+    <h2>New Payment Received</h2>
+    <p>New payment received for order ${reference}</p>
+    <h3>Customer Details:</h3>
+    <p>Name: ${customerName}<br>Email: ${customerEmail}</p>
+    <h3>Order Details:</h3>
+    <ul>
+      ${items.map(item => `<li>${item.name} x ${item.quantity} - ₦${item.price.toLocaleString()}</li>`).join('')}
+    </ul>
+    <p>Total Amount: ₦${amount.toLocaleString()}</p>
+    <p>Please process this order as soon as possible.</p>
+  `;
+
+  await transporter.sendMail({
+    from: `E.H.R Clothing <${process.env.SMTP_USER}>`,
+    to,
+    subject: `New Payment Received - Order ${reference}`,
+    html: emailTemplate(content),
+  });
 }

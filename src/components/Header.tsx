@@ -40,6 +40,7 @@ export function Header({ onSearch }: { onSearch?: (query: string) => void }) {
     }
 
     const { coupon, isLoading } = useLatestCoupon()
+    console.log(coupon)
 
     return (
         <header className="relative">
@@ -50,8 +51,12 @@ export function Header({ onSearch }: { onSearch?: (query: string) => void }) {
                     )}
                     {!isLoading && coupon ? (
                         <>
-                            Use this Promo Code <strong>&rdquo;{coupon.code}&rdquo;</strong> to get {coupon.discount}% off your purchases.
-                            <Link href="/shop" className="underline ml-1"> Shop Now</Link>
+                            Use this Promo Code <strong>&rdquo;{coupon.code}&rdquo;</strong> to get{" "}
+                            {coupon.type === "percentage"
+                                ? `${coupon.discount}% off`
+                                : `₦${coupon.discount} off`}{" "}
+                            your purchases.
+                            <Link href="/shop" className="underline ml-1">Shop Now</Link>
                         </>
                     ) : (
                         <>

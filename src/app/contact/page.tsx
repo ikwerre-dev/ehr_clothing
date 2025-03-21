@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { useDarkMode } from '@/context/DarkModeContext'
-import { EnvelopeIcon, PhoneIcon, MapPinIcon } from '@heroicons/react/24/outline'
+import { EnvelopeIcon, PhoneIcon } from '@heroicons/react/24/outline'
 
 export default function ContactPage() {
     const { isDarkMode } = useDarkMode()
@@ -44,20 +44,11 @@ export default function ContactPage() {
                                 <PhoneIcon className="w-6 h-6" />
                                 <div>
                                     <h3 className="font-medium">Phone</h3>
-                                    <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>(555) 123-4567</p>
+                                    <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>+2349064505159</p>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-4">
-                                <MapPinIcon className="w-6 h-6" />
-                                <div>
-                                    <h3 className="font-medium">Address</h3>
-                                    <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
-                                        123 Fashion Street<br />
-                                        Lagos, Nigeria
-                                    </p>
-                                </div>
-                            </div>
+
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
@@ -69,8 +60,8 @@ export default function ContactPage() {
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     className={`w-full px-4 py-2 rounded-lg border ${isDarkMode
-                                            ? 'bg-[#000] border-[#444] text-white'
-                                            : 'bg-white border-gray-300 text-black'
+                                        ? 'bg-[#000] border-[#444] text-white'
+                                        : 'bg-white border-gray-300 text-black'
                                         }`}
                                 />
                             </div>
@@ -83,8 +74,8 @@ export default function ContactPage() {
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     className={`w-full px-4 py-2 rounded-lg border ${isDarkMode
-                                            ? 'bg-[#000] border-[#444] text-white'
-                                            : 'bg-white border-gray-300 text-black'
+                                        ? 'bg-[#000] border-[#444] text-white'
+                                        : 'bg-white border-gray-300 text-black'
                                         }`}
                                 />
                             </div>
@@ -97,8 +88,8 @@ export default function ContactPage() {
                                     value={formData.subject}
                                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                                     className={`w-full px-4 py-2 rounded-lg border ${isDarkMode
-                                            ? 'bg-[#000] border-[#444] text-white'
-                                            : 'bg-white border-gray-300 text-black'
+                                        ? 'bg-[#000] border-[#444] text-white'
+                                        : 'bg-white border-gray-300 text-black'
                                         }`}
                                 />
                             </div>
@@ -111,8 +102,8 @@ export default function ContactPage() {
                                     value={formData.message}
                                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                     className={`w-full px-4 py-2 rounded-lg border ${isDarkMode
-                                            ? 'bg-[#000] border-[#444] text-white'
-                                            : 'bg-white border-gray-300 text-black'
+                                        ? 'bg-[#000] border-[#444] text-white'
+                                        : 'bg-white border-gray-300 text-black'
                                         }`}
                                 />
                             </div>
@@ -120,8 +111,8 @@ export default function ContactPage() {
                             <button
                                 type="submit"
                                 className={`w-full py-3 rounded-lg transition-colors ${isDarkMode
-                                        ? 'bg-white text-black hover:bg-gray-200'
-                                        : 'bg-black text-white hover:bg-[#222]'
+                                    ? 'bg-white text-black hover:bg-gray-200'
+                                    : 'bg-black text-white hover:bg-[#222]'
                                     }`}
                             >
                                 Send Message

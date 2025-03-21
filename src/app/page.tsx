@@ -6,7 +6,7 @@ import { Footer } from '@/components/Footer'
 import { ProductCard } from '@/components/ProductCard'
 import { prisma } from '@/lib/prisma'
 import { Product } from '@/types/product' // Add this import
-import { useDarkMode } from '@/context/DarkModeContext'
+// import { useDarkMode } from '@/context/DarkModeContext'
 import { ThemeContainer } from '@/components/ThemeContainer'
 
 async function getProducts() {

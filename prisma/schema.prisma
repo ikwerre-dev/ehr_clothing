@@ -76,6 +76,8 @@ model Order {
   coupon      Coupon?       @relation(fields: [couponId], references: [id])
   couponId    String?
   couponUsage CouponUsage[]
+  paymentStatus String   @default("UNPAID")
+  paymentReference String? @unique
   @@index([userId])
   @@index([addressId])
 }

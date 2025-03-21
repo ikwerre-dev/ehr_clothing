@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 interface Coupon {
     code: string;
     discount: number;
+    type: string; 
 }
 
 export function useLatestCoupon() {

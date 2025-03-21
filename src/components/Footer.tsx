@@ -15,11 +15,11 @@ export function Footer() {
             <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'} mb-4`}>
               We are committed to delivering premium quality clothing that reflects your unique style.
             </p>
-            <div className="flex gap-4">
+            {/* <div className="flex gap-4">
               <Link href="#" className={`${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}>Instagram</Link>
               <Link href="#" className={`${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}>Facebook</Link>
               <Link href="#" className={`${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}>Twitter</Link>
-            </div>
+            </div> */}
           </div>
 
           <div>
@@ -44,8 +44,8 @@ export function Footer() {
             <h3 className="font-semibold mb-4">Contact</h3>
             <ul className={`space-y-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               <li>Email: rileymandara192@gmail.com</li>
-              <li>Phone: (555) 123-4567</li>
-              <li>Mon - Fri: 9:00 - 18:00</li>
+              <li>Phone: +2349064505159</li>
+              <li>Mon - Sun: 9:00 - 23:00</li>
             </ul>
           </div>
         </div>

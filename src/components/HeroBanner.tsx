@@ -29,14 +29,14 @@ export function HeroBanner() {
           <div className="grid grid-cols-3 gap-4 mt-12">
             <div>
               <h3 className="text-2xl font-bold">200+</h3>
-              <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>International Brands</p>
+              <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>Weekly Orders</p>
             </div>
             <div>
-              <h3 className="text-2xl font-bold">2,000+</h3>
+              <h3 className="text-2xl font-bold">50+</h3>
               <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>High-quality Products</p>
             </div>
             <div>
-              <h3 className="text-2xl font-bold">30,000+</h3>
+              <h3 className="text-2xl font-bold">1000+</h3>
               <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>Happy Customers</p>
             </div>
           </div>

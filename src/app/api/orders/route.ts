@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendAdminOrderNotification, sendOrderConfirmationEmail } from '@/lib/email'
+import { initializePayment } from '@/lib/squad'
 
 function generateReference() {
     const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase()
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
             color: string;
             title?: string;
         }
-        
+
         interface OrderData {
             reference: string;
             customerName: string;
@@ -70,11 +71,22 @@ export async function POST(request: Request) {
                     id: string;
                 };
             };
+            paymentStatus: 'UNPAID';
+            paymentReference?: string;
         }
-        
+        const reference = generateReference()
+
+        const paymentData = await initializePayment({
+            amount: total * 100, // Convert to kobo
+            email: customerInfo.email,
+            reference: reference,
+            callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL}/verify`
+        })
+
+        console.log(paymentData)
         // Update the type annotations
         const orderData: OrderData = {
-            reference: generateReference(),
+            reference: reference,
             customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
             email: customerInfo.email,
             phone: customerInfo.phone,
@@ -86,6 +98,8 @@ export async function POST(request: Request) {
             subtotal,
             shipping,
             status: 'PENDING',
+            paymentStatus: 'UNPAID',
+            paymentReference: paymentData.transaction_ref,
             user: {
                 connect: {
                     id: user.id
@@ -158,7 +172,7 @@ export async function POST(request: Request) {
         // Update email references
         await Promise.all([
             sendOrderConfirmationEmail(customerInfo.email, {
-                reference: order.reference, 
+                reference: order.reference,
                 customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
                 items: items.map((item: OrderItem) => ({
                     ...item,
@@ -192,7 +206,13 @@ export async function POST(request: Request) {
             })
         ])
 
-        return NextResponse.json({ reference: order.reference })
+        console.log(paymentData)
+
+        return NextResponse.json({
+            reference: order.reference,
+            paymentUrl: paymentData.data.checkout_url
+        })
+
     } catch (error) {
         console.error('Failed to create order:', error)
         return NextResponse.json(

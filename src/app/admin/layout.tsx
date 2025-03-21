@@ -138,19 +138,8 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
               </Link>
 
 
-              {/* <Link
-              onClick={() => setSidebarOpen(false)}
-              
-              href="/admin/transfers"
-                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${pathname === '/admin/analytics' ? 'bg-gray-100 text-gray-900' : ''
-                  }`}>
-                <ArrowDown className="w-5 h-5 mr-3" />
-                Withdraw
-              </Link> */}
-
               <Link
                 onClick={() => setSidebarOpen(false)}
-
                 href="/admin/coupons"
                 className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${pathname === '/admin/coupons' ? 'bg-gray-100 text-gray-900' : ''
                   }`}>

@@ -43,7 +43,7 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">Contact</h3>
             <ul className={`space-y-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-              <li>Email: contact@ehr.com</li>
+              <li>Email: rileymandara192@gmail.com</li>
               <li>Phone: (555) 123-4567</li>
               <li>Mon - Fri: 9:00 - 18:00</li>
             </ul>

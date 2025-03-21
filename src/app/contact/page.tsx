@@ -36,7 +36,7 @@ export default function ContactPage() {
                                 <EnvelopeIcon className="w-6 h-6" />
                                 <div>
                                     <h3 className="font-medium">Email</h3>
-                                    <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>contact@ehr.com</p>
+                                    <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>rileymandara192@gmail.com</p>
                                 </div>
                             </div>
 

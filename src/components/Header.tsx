@@ -8,6 +8,7 @@ import { useCart } from '@/context/CartContext'
 import { useState } from 'react'
 import { PackageSearch } from 'lucide-react'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { useLatestCoupon } from '@/hooks/useLatestCoupon'
 
 export function Header({ onSearch }: { onSearch?: (query: string) => void }) {
     const pathname = usePathname()
@@ -38,6 +39,8 @@ export function Header({ onSearch }: { onSearch?: (query: string) => void }) {
         }
     }
 
+    const { coupon, isLoading } = useLatestCoupon()
+
     return (
         <header className="relative">
             <div className="bg-gray-900 text-white py-2 px-4 text-center text-sm">
@@ -45,8 +48,17 @@ export function Header({ onSearch }: { onSearch?: (query: string) => void }) {
                     {getPageTitle() && (
                         <span className="font-medium mr-2">{getPageTitle()}:</span>
                     )}
-                    Use this Promo Code <strong>&rdquo;RILEY111&rdquo;</strong> to get 10% off your purchases.
-                    <Link href="/shop" className="underline ml-1"> Shop Now</Link>
+                    {!isLoading && coupon ? (
+                        <>
+                            Use this Promo Code <strong>&rdquo;{coupon.code}&rdquo;</strong> to get {coupon.discount}% off your purchases.
+                            <Link href="/shop" className="underline ml-1"> Shop Now</Link>
+                        </>
+                    ) : (
+                        <>
+                            Welcome to E.H.R Clothing
+                            <Link href="/shop" className="underline ml-1">Shop Now</Link>
+                        </>
+                    )}
                 </p>
             </div>
 

@@ -6,6 +6,8 @@ import { Footer } from '@/components/Footer'
 import { ProductCard } from '@/components/ProductCard'
 import { prisma } from '@/lib/prisma'
 import { Product } from '@/types/product' // Add this import
+import { useDarkMode } from '@/context/DarkModeContext'
+import { ThemeContainer } from '@/components/ThemeContainer'
 
 async function getProducts() {
   const thirtyDaysAgo = new Date()
@@ -14,7 +16,7 @@ async function getProducts() {
   const [newArrivals, bestSellers, regularProducts] = await Promise.all([
     // New arrivals (unchanged)
     prisma.product.findMany({
-      where: {
+      where: { 
         createdAt: { gte: thirtyDaysAgo }
       },
       include: { category: true },
@@ -57,61 +59,63 @@ export default async function Home() {
         <Header />
         <HeroBanner />
 
-        <div className="container mx-auto px-6 py-16">
-          <section className="mb-16">
-            <h2 className="text-2xl font-bold mb-8">NEW ARRIVALS</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {newArrivals.map((product: Product) => (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  title={product.name}
-                  price={product.price}
-                  image={product.images[0]}
-                  rating={4.5}
-                  reviewCount={0}
-                />
-              ))}
-            </div>
-          </section>
-        </div>
+        <ThemeContainer>
+          <div className="container mx-auto px-6 py-16">
+            <section className="mb-16">
+              <h2 className="text-2xl font-bold mb-8">NEW ARRIVALS</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {newArrivals.map((product: Product) => (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    title={product.name}
+                    price={product.price}
+                    image={product.images[0]}
+                    rating={4.5}
+                    reviewCount={0}
+                  />
+                ))}
+              </div>
+            </section>
+          </div>
 
-        <Categories />
-        <div className="container mx-auto px-6 py-16">
-          <section className="mb-16">
-            <h2 className="text-2xl font-bold mb-8">FEATURED COLLECTION</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {featured.map((product: Product) => (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  title={product.name}
-                  price={product.price}
-                  image={product.images[0]}
-                  rating={4.5}
-                  reviewCount={0}
-                />
-              ))}
-            </div>
-          </section>
+          <Categories />
+          <div className="container mx-auto px-6 py-16">
+            <section className="mb-16">
+              <h2 className="text-2xl font-bold mb-8">FEATURED COLLECTION</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {featured.map((product: Product) => (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    title={product.name}
+                    price={product.price}
+                    image={product.images[0]}
+                    rating={4.5}
+                    reviewCount={0}
+                  />
+                ))}
+              </div>
+            </section>
 
-          <section className="mb-16">
-            <h2 className="text-2xl font-bold mb-8">BEST SELLERS</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {bestSellers.map((product: Product) => (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  title={product.name}
-                  price={product.price}
-                  image={product.images[0]}
-                  rating={4.5}
-                  reviewCount={0}
-                />
-              ))}
-            </div>
-          </section>
-        </div>
+            <section className="mb-16">
+              <h2 className="text-2xl font-bold mb-8">BEST SELLERS</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {bestSellers.map((product: Product) => (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    title={product.name}
+                    price={product.price}
+                    image={product.images[0]}
+                    rating={4.5}
+                    reviewCount={0}
+                  />
+                ))}
+              </div>
+            </section>
+          </div>
+        </ThemeContainer>
 
         <Newsletter />
         <Footer />

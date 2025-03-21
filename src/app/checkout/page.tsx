@@ -23,11 +23,81 @@ export default function CheckoutPage() {
         paymentMethod: 'card'
     })
 
+    // Add coupon state
+    const [couponCode, setCouponCode] = useState('')
+    const [couponError, setCouponError] = useState('')
+    const [couponSuccess, setCouponSuccess] = useState('')
+    const [appliedCoupon, setAppliedCoupon] = useState<{
+        id: string;
+        code: string;
+        discount: number;
+        type: string;
+        discountAmount: number;
+    } | null>(null)
+    const [validatingCoupon, setValidatingCoupon] = useState(false)
+
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
     const shipping = 2500
-    const total = subtotal + shipping
+    
+    // Calculate discount if coupon is applied
+    const discount = appliedCoupon ? appliedCoupon.discountAmount : 0
+    
+    // Calculate total with discount
+    const total = subtotal + shipping - discount
+    
     const [isSubmitting, setIsSubmitting] = useState(false)
     const router = useRouter()
+
+    // Handle coupon validation
+    const validateCoupon = async () => {
+        if (!couponCode.trim()) {
+            setCouponError('Please enter a coupon code')
+            return
+        }
+
+        setValidatingCoupon(true)
+        setCouponError('')
+        setCouponSuccess('')
+
+        try {
+            const response = await fetch('/api/coupons/validate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    code: couponCode,
+                    cartTotal: subtotal
+                }),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                setCouponError(data.error || 'Invalid coupon code')
+                setAppliedCoupon(null)
+            } else {
+                setCouponSuccess(`Coupon applied: ${data.coupon.type === 'percentage' ? 
+                    `${data.coupon.discount}% off` : 
+                    `₦${data.coupon.discount.toLocaleString()} off`}`)
+                setAppliedCoupon(data.coupon)
+            }
+        } catch (error) {
+            console.error('Error validating coupon:', error)
+            setCouponError('Failed to validate coupon')
+            setAppliedCoupon(null)
+        } finally {
+            setValidatingCoupon(false)
+        }
+    }
+
+    // Remove applied coupon
+    const removeCoupon = () => {
+        setAppliedCoupon(null)
+        setCouponCode('')
+        setCouponSuccess('')
+        setCouponError('')
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -50,7 +120,9 @@ export default function CheckoutPage() {
                     customerInfo: formData,
                     total,
                     subtotal,
-                    shipping
+                    shipping,
+                    couponId: appliedCoupon?.id || null,
+                    discount: discount
                 }),
             })
 
@@ -166,8 +238,8 @@ export default function CheckoutPage() {
                                     type="text"
                                     required
                                     className="w-full border border-[#444] rounded-lg p-2"
+                                    value={formData.state}
                                     onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-
                                 />
                             </div>
                         </div>
@@ -215,6 +287,51 @@ export default function CheckoutPage() {
                                 </div>
                             ))}
 
+                            {/* Coupon Code Section */}
+                            <div className={`border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} pt-4 mt-4`}>
+                                {appliedCoupon ? (
+                                    <div className="mb-3">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-green-600 font-medium">{couponSuccess}</span>
+                                            <button 
+                                                onClick={removeCoupon}
+                                                className="text-sm text-red-500 hover:text-red-700"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="mb-3">
+                                        <label className="block mb-1 text-sm">Have a coupon?</label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                className="flex-grow border border-[#444] rounded-lg p-2 text-sm"
+                                                placeholder="Enter coupon code"
+                                                value={couponCode}
+                                                onChange={(e) => setCouponCode(e.target.value)}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={validateCoupon}
+                                                disabled={validatingCoupon}
+                                                className={`px-3 py-2 rounded-lg text-sm ${
+                                                    isDarkMode
+                                                        ? 'bg-white text-black hover:bg-gray-200'
+                                                        : 'bg-black text-white hover:bg-[#333]'
+                                                } ${validatingCoupon ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            >
+                                                {validatingCoupon ? 'Applying...' : 'Apply'}
+                                            </button>
+                                        </div>
+                                        {couponError && (
+                                            <p className="text-red-500 text-sm mt-1">{couponError}</p>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
                             <div className={`border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} pt-4 mt-4 space-y-2`}>
                                 <div className="flex justify-between">
                                     <span>Subtotal</span>
@@ -224,6 +341,12 @@ export default function CheckoutPage() {
                                     <span>Shipping</span>
                                     <span>₦{shipping.toLocaleString()}</span>
                                 </div>
+                                {appliedCoupon && (
+                                    <div className="flex justify-between text-green-600">
+                                        <span>Discount</span>
+                                        <span>-₦{discount.toLocaleString()}</span>
+                                    </div>
+                                )}
                                 <div className="flex justify-between font-bold">
                                     <span>Total</span>
                                     <span>₦{total.toLocaleString()}</span>

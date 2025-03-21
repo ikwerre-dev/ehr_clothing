@@ -4,69 +4,105 @@ import { useState } from 'react'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { useDarkMode } from '@/context/DarkModeContext'
-import { MagnifyingGlassIcon, TruckIcon, CheckCircleIcon,  ClockIcon } from '@heroicons/react/24/outline'
+import { MagnifyingGlassIcon, TruckIcon, CheckCircleIcon, ClockIcon, XCircleIcon } from '@heroicons/react/24/outline'
+import { IdentificationIcon, UserIcon, CalendarIcon, TagIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline'
 import { Package } from 'lucide-react'
 
-type TrackingStatus = 'processing' | 'shipped' | 'out-for-delivery' | 'delivered'
+
+type OrderStatus = 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
 
 interface TrackingStep {
-  status: TrackingStatus
+  status: OrderStatus
   title: string
-  date: string
   description: string
   isCompleted: boolean
-  icon: typeof TruckIcon
+  icon: any
 }
 
 export default function TrackingPage() {
   const { isDarkMode } = useDarkMode()
   const [trackingNumber, setTrackingNumber] = useState('')
   const [isSearching, setIsSearching] = useState(false)
-  const [showTracking, setShowTracking] = useState(false)
+  const [error, setError] = useState('')
+  const [orderData, setOrderData] = useState<any>(null)
 
-  const trackingSteps: TrackingStep[] = [
-    {
-      status: 'processing',
-      title: 'Order Processing',
-      date: '2024-01-20 09:00 AM',
-      description: 'Your order has been confirmed and is being processed',
-      isCompleted: true,
-      icon: ClockIcon
-    },
-    {
-      status: 'shipped',
-      title: 'Order Shipped',
-      date: '2024-01-21 02:30 PM',
-      description: 'Your package has been shipped from our warehouse',
-      isCompleted: true,
-      icon: Package
-    },
-    {
-      status: 'out-for-delivery',
-      title: 'Out for Delivery',
-      date: '2024-01-22 08:45 AM',
-      description: 'Your package is out for delivery',
-      isCompleted: true,
-      icon: TruckIcon
-    },
-    {
-      status: 'delivered',
-      title: 'Delivered',
-      date: 'Estimated: 2024-01-22 05:00 PM',
-      description: 'Package will be delivered to your address',
-      isCompleted: false,
-      icon: CheckCircleIcon
+  const getTrackingSteps = (status: OrderStatus): TrackingStep[] => {
+    const steps: TrackingStep[] = [
+      {
+        status: 'PENDING',
+        title: 'Order Received',
+        description: 'Your order has been received and is awaiting processing',
+        isCompleted: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED'].includes(status),
+        icon: ClockIcon
+      },
+      {
+        status: 'PROCESSING',
+        title: 'Order Processing',
+        description: 'Your order is being processed',
+        isCompleted: ['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(status),
+        icon: Package
+      },
+      {
+        status: 'SHIPPED',
+        title: 'Order Shipped',
+        description: 'Your package is on its way',
+        isCompleted: ['SHIPPED', 'DELIVERED'].includes(status),
+        icon: TruckIcon
+      },
+      {
+        status: 'DELIVERED',
+        title: 'Delivered',
+        description: 'Your package has been delivered',
+        isCompleted: ['DELIVERED'].includes(status),
+        icon: CheckCircleIcon
+      }
+    ]
+
+    if (status === 'CANCELLED') {
+      return [
+        {
+          status: 'CANCELLED',
+          title: 'Order Cancelled',
+          description: 'This order has been cancelled',
+          isCompleted: true,
+          icon: XCircleIcon
+        }
+      ]
     }
-  ]
 
-  const handleTracking = (e: React.FormEvent) => {
+    return steps
+  }
+
+  const handleTracking = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSearching(true)
-    // Simulate API call
-    setTimeout(() => {
+    setError('')
+    setOrderData(null)
+
+    try {
+      const response = await fetch(`/api/tracking?reference=${trackingNumber}`)
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch order')
+      }
+
+      setOrderData(data)
+    } catch (error: any) {
+      setError(error.message)
+    } finally {
       setIsSearching(false)
-      setShowTracking(true)
-    }, 1500)
+    }
+  }
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
   }
 
   return (
@@ -88,7 +124,7 @@ export default function TrackingPage() {
                     type="text"
                     value={trackingNumber}
                     onChange={(e) => setTrackingNumber(e.target.value)}
-                    placeholder="e.g., EHR123456789"
+                    placeholder="e.g., EHR-VAIDQH"
                     className={`w-full px-4 py-3 rounded-lg ${
                       isDarkMode 
                         ? 'bg-gray-800 text-white placeholder:text-gray-400' 
@@ -118,20 +154,44 @@ export default function TrackingPage() {
               </button>
             </form>
 
-            {showTracking && (
+            {error && (
+              <div className="mt-8 p-4 bg-red-100 text-red-700 rounded-lg">
+                {error}
+              </div>
+            )}
+
+            {orderData && (
               <div className="mt-8 space-y-8">
                 <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
                   <h3 className="font-medium mb-2">Order Details</h3>
-                  <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                    <p>Tracking Number: {trackingNumber}</p>
-                    <p>Estimated Delivery: Jan 22, 2024</p>
+                  <div className={`text-sm space-y-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    <p className="flex items-center gap-2">
+                      <IdentificationIcon className="w-5 h-5" />
+                      <span className="font-bold">Reference:</span> {orderData.reference}
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <UserIcon className="w-5 h-5" />
+                      <span className="font-bold">Customer:</span> {orderData.customerName}
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <CalendarIcon className="w-5 h-5" />
+                      <span className="font-bold">Order Date:</span> {formatDate(orderData.createdAt)}
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <TagIcon className="w-5 h-5" />
+                      <span className="font-bold">Status:</span> {orderData.status}
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <CurrencyDollarIcon className="w-5 h-5" />
+                      <span className="font-bold">Total:</span> ₦{orderData.total.toLocaleString()}
+                    </p>
                   </div>
                 </div>
 
                 <div className="space-y-6">
-                  {trackingSteps.map((step, index) => (
+                  {getTrackingSteps(orderData.status).map((step, index, steps) => (
                     <div key={step.status} className="relative">
-                      {index !== trackingSteps.length - 1 && (
+                      {index !== steps.length - 1 && (
                         <div 
                           className={`absolute left-6 top-10 w-0.5 h-full ${
                             step.isCompleted ? 'bg-green-500' : isDarkMode ? 'bg-gray-700' : 'bg-gray-300'
@@ -139,20 +199,17 @@ export default function TrackingPage() {
                         />
                       )}
                       <div className="flex gap-4">
-                      <div className=" flex flex-col items-center justify-center">
-                      <div className={`rounded-full flex p-2 ${
-                          step.isCompleted 
-                            ? 'bg-green-500 text-white' 
-                            : isDarkMode ? 'bg-gray-700' : 'bg-gray-300'
-                        }`}>
-                          <step.icon className="w-6 h-6" />
+                        <div className="flex flex-col items-center justify-center">
+                          <div className={`rounded-full flex p-2 ${
+                            step.isCompleted 
+                              ? step.status === 'CANCELLED' ? 'bg-red-500 text-white' : 'bg-green-500 text-white'
+                              : isDarkMode ? 'bg-gray-700' : 'bg-gray-300'
+                          }`}>
+                            <step.icon className="w-6 h-6" />
+                          </div>
                         </div>
-                      </div>
                         <div>
                           <h4 className="font-medium">{step.title}</h4>
-                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                            {step.date}
-                          </p>
                           <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                             {step.description}
                           </p>
@@ -164,7 +221,7 @@ export default function TrackingPage() {
               </div>
             )}
 
-            {!showTracking && (
+            {!orderData && !error && !isSearching && (
               <div className="mt-8">
                 <h2 className="font-medium mb-4">How to track your order:</h2>
                 <ol className={`list-decimal list-inside space-y-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>

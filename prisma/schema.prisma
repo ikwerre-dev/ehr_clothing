@@ -22,6 +22,7 @@ model User {
   role          Role          @default(USER)
   orders        Order[]
   addresses     Address[]
+  couponUsages  CouponUsage[]  // Add this line to create the relation
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 }
@@ -51,7 +52,7 @@ model Category {
 
 model Order {
    id              String            @id @default(cuid())
-  reference       String            @unique  // Changed from orderNumber to reference
+  reference       String            @unique
   customerName    String
   email           String
   phone           String
@@ -60,6 +61,7 @@ model Order {
   state          String
   paymentMethod  String
   total          Float
+  totalAmount    Float              @default(0) // Add this field as an alias for total
   subtotal       Float
   shipping       Float
   status         OrderStatus       @default(PENDING)
@@ -71,7 +73,9 @@ model Order {
   addressId       String?
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
-
+  coupon      Coupon?       @relation(fields: [couponId], references: [id])
+  couponId    String?
+  couponUsage CouponUsage[]
   @@index([userId])
   @@index([addressId])
 }
@@ -117,21 +121,36 @@ model ShippingAddress {
     order   Order  @relation(fields: [orderId], references: [id])
 }
 
-// Remove the second Address model (lines 120-131)
+model CouponUsage {
+  id        String   @id @default(cuid())
+  coupon    Coupon   @relation(fields: [couponId], references: [id])
+  couponId  String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  order     Order    @relation(fields: [orderId], references: [id])
+  orderId   String
+  createdAt DateTime @default(now())
+
+  @@unique([couponId, userId, orderId])
+}
 
 model Coupon {
-  id            String         @id @default(cuid())
-  code          String         @unique
-  discount      Float
-  type          DiscountType
-  minAmount     Float?
-  maxDiscount   Float?
-  startDate     DateTime
-  endDate       DateTime
-  isActive      Boolean       @default(true)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id          String        @id @default(cuid())
+  code        String        @unique
+  discount    Float
+  type        String        @default("percentage") // "percentage" or "fixed"
+  minPurchase Float         @default(0)
+  maxUses     Int           @default(100)
+  usedCount   Int           @default(0)
+  validFrom   DateTime
+  validUntil  DateTime
+  status      String        @default("active") // "active", "expired", "draft"
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  orders      Order[]
+  usages      CouponUsage[]
 }
+
 
 enum Role {
   USER

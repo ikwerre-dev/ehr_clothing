@@ -3,11 +3,18 @@ import { NextResponse } from 'next/server'
 import { Order, Product, Category } from '@prisma/client/wasm'
 
 
+// Update the ProductWithOrderItems type
 type ProductWithOrderItems = Product & {
   orderItems: Array<{
-    price: number;
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    orderId: string;
+    productId: string;
     quantity: number;
-    order: Order;
+    price: number;
+    size: string;
+    color: string;
   }>;
   _count: {
     orderItems: number;
@@ -250,6 +257,7 @@ export async function GET(request: Request) {
       ]),
 
       // Top products
+      // Update the topProducts query to include necessary fields
       prisma.product.findMany({
         take: 5,
         where: {

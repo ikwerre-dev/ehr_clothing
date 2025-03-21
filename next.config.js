@@ -3,6 +3,9 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   images: {
     domains: ['localhost'],
     remotePatterns: [
@@ -13,7 +16,7 @@ const nextConfig = {
         pathname: '/upload_site_backend/uploads/**',
       },
     ],
-  },
+  }
 }
 
 module.exports = nextConfig

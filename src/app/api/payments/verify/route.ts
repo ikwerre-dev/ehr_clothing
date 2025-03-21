@@ -2,13 +2,14 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendAdminPaymentNotification, sendPaymentConfirmationEmail } from '@/lib/email';
 
-interface OrderItem {
-    product: {
-        name: string;
-    };
-    quantity: number;
-    price: number;
-}
+// interface OrderItem {
+//     id: string;
+//     title: string;
+//     size: string;
+//     color: string;
+//     quantity: number;
+//     price: number;
+// }
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url)
@@ -54,14 +55,19 @@ export async function GET(request: Request) {
             }
 
 
+            // In the GET function, update the items mapping:
             await Promise.all([
                 // Customer email
                 sendPaymentConfirmationEmail(order.email, {
                     reference: order.reference,
                     customerName: order.customerName,
                     amount: order.total,
-                    items: order.items.map((item: OrderItem) => ({
+                    items: order.items.map((item) => ({
+                        id: item.id,
+                        title: item.product.name,
                         name: item.product.name,
+                        size: item.size,
+                        color: item.color,
                         quantity: item.quantity,
                         price: item.price
                     }))
@@ -74,8 +80,12 @@ export async function GET(request: Request) {
                     customerName: order.customerName,
                     customerEmail: order.email,
                     amount: order.total,
-                    items: order.items.map((item: OrderItem) => ({
+                    items: order.items.map((item) => ({
+                        id: item.id,
+                        title: item.product.name,
                         name: item.product.name,
+                        size: item.size,
+                        color: item.color,
                         quantity: item.quantity,
                         price: item.price
                     }))

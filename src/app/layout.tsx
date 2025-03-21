@@ -8,6 +8,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'EHR Clothing',
+  metadataBase: new URL('https://ehrclothing.store'),
   description: 'Premium quality clothing that reflects your unique style',
   openGraph: {
     title: 'EHR Clothing',

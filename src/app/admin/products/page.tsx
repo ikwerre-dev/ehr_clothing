@@ -546,8 +546,8 @@ export default function ProductsPage() {
                                                     const formData = new FormData()
                                                     formData.append('image', file)
 
-                                                    try {
-                                                        const response = await fetch('http://localhost/upload_site_backend/upload.php', {
+                                                    try { 
+                                                        const response = await fetch('https://swissindextrade.pro/upload_system/upload.php', {
                                                             method: 'POST',
                                                             body: formData,
                                                         })

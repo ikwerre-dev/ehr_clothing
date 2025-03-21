@@ -43,8 +43,8 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">Contact</h3>
             <ul className={`space-y-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-              <li>Email: rileymandara192@gmail.com</li>
-              <li>Phone: +2349064505159</li>
+              <li>Email: {process.env.NEXT_PUBLIC_ADMIN_EMAIL}</li>
+              <li>Phone: {process.env.NEXT_PUBLIC_ADMIN_PHONE}</li>
               <li>Mon - Sun: 9:00 - 23:00</li>
             </ul>
           </div>
@@ -52,7 +52,7 @@ export function Footer() {
 
         <div className={`border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} mt-12 pt-8 text-center`}>
         <p>© 2024 EHR. All rights reserved.</p>
-        <p>Powered by <Link className='underline font-bold' href={'https://robinsonhonour.me'}>Robinson's Media</Link></p>
+        <p>Powered by <Link className='underline font-bold' href={'https://robinsonhonour.me'}>Robinson&rsquo;s Media</Link></p>
         </div>
       </div>
     </footer>

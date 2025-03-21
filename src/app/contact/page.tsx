@@ -15,12 +15,33 @@ export default function ContactPage() {
         message: ''
     })
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        // Handle form submission
-        console.log('Form submitted:', formData)
-        alert('Message sent successfully!')
-        setFormData({ name: '', email: '', subject: '', message: '' })
+        setIsSubmitting(true)
+        
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            })
+
+            if (!response.ok) {
+                throw new Error('Failed to send message')
+            }
+
+            alert('Message sent successfully!')
+            setFormData({ name: '', email: '', subject: '', message: '' })
+        } catch (error) {
+            console.log(error)
+            alert('Failed to send message. Please try again.')
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return (
@@ -36,7 +57,7 @@ export default function ContactPage() {
                                 <EnvelopeIcon className="w-6 h-6" />
                                 <div>
                                     <h3 className="font-medium">Email</h3>
-                                    <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>rileymandara192@gmail.com</p>
+                                    <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>{process.env.NEXT_PUBLIC_ADMIN_EMAIL}</p>
                                 </div>
                             </div>
 
@@ -44,7 +65,7 @@ export default function ContactPage() {
                                 <PhoneIcon className="w-6 h-6" />
                                 <div>
                                     <h3 className="font-medium">Phone</h3>
-                                    <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>+2349064505159</p>
+                                    <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>{process.env.NEXT_PUBLIC_ADMIN_PHONE}</p>
                                 </div>
                             </div>
 
@@ -110,12 +131,14 @@ export default function ContactPage() {
 
                             <button
                                 type="submit"
-                                className={`w-full py-3 rounded-lg transition-colors ${isDarkMode
-                                    ? 'bg-white text-black hover:bg-gray-200'
-                                    : 'bg-black text-white hover:bg-[#222]'
-                                    }`}
+                                disabled={isSubmitting}
+                                className={`w-full py-3 rounded-lg transition-colors ${
+                                    isDarkMode
+                                        ? 'bg-white text-black hover:bg-gray-200'
+                                        : 'bg-black text-white hover:bg-[#222]'
+                                    } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
-                                Send Message
+                                {isSubmitting ? 'Sending...' : 'Send Message'}
                             </button>
                         </form>
                     </div>

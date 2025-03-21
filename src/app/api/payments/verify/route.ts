@@ -69,7 +69,7 @@ export async function GET(request: Request) {
 
                 // Admin email
                 sendAdminPaymentNotification({
-                    to: 'investorhonour@gmail.com',
+                    to: process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'investorhonour@gmail.com',
                     reference: order.reference,
                     customerName: order.customerName,
                     customerEmail: order.email,

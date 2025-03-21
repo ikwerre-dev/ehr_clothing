@@ -165,7 +165,7 @@ export async function sendAdminOrderNotification(
 
   await transporter.sendMail({
     from: `E.H.R Clothing <${process.env.SMTP_USER}>`,
-    to: 'codewithhonour@gmail.com',
+    to: process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'investorhonour@gmail.com',
     subject: `New Order Alert - ${orderDetails.reference}`,
     html: emailContent,
   })
@@ -307,6 +307,59 @@ export async function sendAdminPaymentNotification(data: {
     from: `E.H.R Clothing <${process.env.SMTP_USER}>`,
     to,
     subject: `New Payment Received - Order ${reference}`,
+    html: emailTemplate(content),
+  });
+}
+
+export async function sendContactNotification({
+  to,
+  name,
+  email,
+  subject,
+  message,
+}: {
+  to: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}) {
+  const content = `
+    <h2>New Contact Form Submission</h2>
+    <h3>Sender Details:</h3>
+    <p>Name: ${name}<br>Email: ${email}</p>
+    <h3>Subject:</h3>
+    <p>${subject}</p>
+    <h3>Message:</h3>
+    <p>${message}</p>
+  `;
+
+  await transporter.sendMail({
+    from: `E.H.R Clothing <${process.env.SMTP_USER}>`,
+    to,
+    subject: `New Contact Form Submission: ${subject}`,
+    html: emailTemplate(content),
+  });
+}
+
+export async function sendContactConfirmation({
+  to,
+  name,
+}: {
+  to: string;
+  name: string;
+}) {
+  const content = `
+    <h2>Thank you for contacting us!</h2>
+    <p>Dear ${name},</p>
+    <p>We have received your message and will get back to you as soon as possible.</p>
+    <p>Best regards,<br>E.H.R Clothing Team</p>
+  `;
+
+  await transporter.sendMail({
+    from: `E.H.R Clothing <${process.env.SMTP_USER}>`,
+    to,
+    subject: 'We received your message',
     html: emailTemplate(content),
   });
 }

@@ -87,8 +87,12 @@ export default function ProductsPage() {
             }
 
             setProducts(products.filter(p => p.id !== productId))
-        } catch (error: any) {
-            alert(error.message || 'Failed to delete product')
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                alert(error.message);
+            } else {
+                alert("An unknown error occurred");
+            }
         } finally {
             setDeletingProductId(null)
         }

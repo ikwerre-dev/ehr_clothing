@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { Header } from '@/components/Header'
 import { HeroBanner } from '@/components/HeroBanner'
 import { Categories } from '@/components/sections/Categories'
@@ -54,72 +55,81 @@ export default async function Home() {
   const { newArrivals, bestSellers, featured } = await getProducts()
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <main>
-        <Header />
-        <HeroBanner />
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <div className="flex flex-col min-h-screen">
+        <main>
+          <Header />
+          <HeroBanner />
 
-        <ThemeContainer>
-          <div className="container mx-auto px-6 py-16">
-            <section className="mb-16">
-              <h2 className="text-2xl font-bold mb-8">NEW ARRIVALS</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {newArrivals.map((product: Product) => (
-                  <ProductCard
-                    key={product.id}
-                    id={product.id}
-                    title={product.name}
-                    price={product.price}
-                    image={product.images[0]}
-                    rating={4.5}
-                    reviewCount={0}
-                  />
-                ))}
-              </div>
-            </section>
-          </div>
+          <ThemeContainer>
+            <div className="container mx-auto px-6 py-16">
+              <section className="mb-16">
+                <h2 className="text-2xl font-bold mb-8">NEW ARRIVALS</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {newArrivals.map((product: Product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      title={product.name}
+                      price={product.price}
+                      image={product.images[0]}
+                      rating={4.5}
+                      reviewCount={0}
+                    />
+                  ))}
+                </div>
+              </section>
+            </div>
 
-          <Categories />
-          <div className="container mx-auto px-6 py-16">
-            <section className="mb-16">
-              <h2 className="text-2xl font-bold mb-8">FEATURED COLLECTION</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {featured.map((product: Product) => (
-                  <ProductCard
-                    key={product.id}
-                    id={product.id}
-                    title={product.name}
-                    price={product.price}
-                    image={product.images[0]}
-                    rating={4.5}
-                    reviewCount={0}
-                  />
-                ))}
-              </div>
-            </section>
+            <Categories />
+            <div className="container mx-auto px-6 py-16">
+              <section className="mb-16">
+                <h2 className="text-2xl font-bold mb-8">FEATURED COLLECTION</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {featured.map((product: Product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      title={product.name}
+                      price={product.price}
+                      image={product.images[0]}
+                      rating={4.5}
+                      reviewCount={0}
+                    />
+                  ))}
+                </div>
+              </section>
 
-            <section className="mb-16">
-              <h2 className="text-2xl font-bold mb-8">BEST SELLERS</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {bestSellers.map((product: Product) => (
-                  <ProductCard
-                    key={product.id}
-                    id={product.id}
-                    title={product.name}
-                    price={product.price}
-                    image={product.images[0]}
-                    rating={4.5}
-                    reviewCount={0}
-                  />
-                ))}
-              </div>
-            </section>
-          </div>
-        </ThemeContainer>
+              <section className="mb-16">
+                <h2 className="text-2xl font-bold mb-8">BEST SELLERS</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {bestSellers.map((product: Product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      title={product.name}
+                      price={product.price}
+                      image={product.images[0]}
+                      rating={4.5}
+                      reviewCount={0}
+                    />
+                  ))}
+                </div>
+              </section>
+            </div>
+          </ThemeContainer>
 
-        <Newsletter />
-        <Footer />
-      </main>
-    </div>
+          <Newsletter />
+          <Footer />
+        </main>
+      </div>
+    </Suspense>
   )
 }

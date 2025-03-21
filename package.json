@@ -7,7 +7,8 @@
     "postinstall": "prisma generate",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "migrate-data": "dotenv -e .env.migrate -- ts-node scripts/migrate-data.ts"
   },
   
   "dependencies": {
@@ -35,9 +36,11 @@
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv-cli": "^7.3.0",
     "eslint": "^9",
     "eslint-config-next": "15.2.3",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

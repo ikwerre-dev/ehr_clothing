@@ -4,17 +4,43 @@ import { useState, useEffect } from 'react'
 import { MagnifyingGlassIcon, EyeIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { toast } from 'react-hot-toast'
 
+
+
+// Add these interfaces at the top of the file, after the existing Customer interface
+interface OrderItem {
+    id: string
+    quantity: number
+    price: number
+    size: string
+    color: string
+    product: {
+        name: string
+        price: number
+    }
+}
+
+interface Order {
+    id: string
+    reference: string
+    total: number
+    status: 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
+    createdAt: string
+    items: OrderItem[]
+}
+
+// Update the Customer interface
 interface Customer {
     id: string
     name: string
     email: string
     phone: string
-    orders: number // Number of orders
-    orderData: any[] // Actual order data
+    orders: number
+    orderData: Order[] // Replace any[] with Order[]
     totalSpent: number
     lastOrder: string
     status: 'active' | 'inactive'
 }
+ 
 
 export default function CustomersPage() {
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
@@ -39,14 +65,22 @@ export default function CustomersPage() {
                 const data = await response.json()
 
                 console.log(data)
+ 
+                interface RawCustomer {
+                    id: string
+                    name: string
+                    email: string
+                    phone: string
+                    orders: Order[]
+                }
 
-                // Transform the data to ensure all properties are primitive values
-                const formattedCustomers = data.map((customer: any) => {
+                // Update the data transformation
+                const formattedCustomers = data.map((customer: RawCustomer) => {
                     // Calculate total spent by summing up all order totals
-                    const totalSpent = customer.orders.reduce((sum: number, order: any) =>
+                    const totalSpent = customer.orders.reduce((sum: number, order: Order) =>
                         sum + (order.total || 0), 0);
 
-                    // Get the most recent order date (orders should be sorted by createdAt desc)
+                    // Get the most recent order date
                     const lastOrder = customer.orders.length > 0
                         ? new Date(customer.orders[0].createdAt).toLocaleDateString()
                         : 'N/A';
@@ -56,8 +90,8 @@ export default function CustomersPage() {
                         name: customer.name || 'Unknown',
                         email: customer.email || '',
                         phone: customer.phone || 'N/A',
-                        orders: customer.orders.length, // Number of orders
-                        orderData: customer.orders, // Keep the actual order data
+                        orders: customer.orders.length,
+                        orderData: customer.orders,
                         totalSpent,
                         lastOrder,
                         status: customer.orders.length > 0 ? 'active' : 'inactive'
@@ -316,7 +350,7 @@ export default function CustomersPage() {
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-gray-200">
-                                                    {selectedCustomer.orderData.slice(0, 5).map((order: any) => (
+                                                     {selectedCustomer.orderData.slice(0, 5).map((order: Order) => (
                                                         <tr key={order.id} className="hover:bg-gray-100">
                                                             <td className="px-4 py-3 text-sm text-gray-900">{order.reference}</td>
                                                             <td className="px-4 py-3 text-sm text-gray-500">

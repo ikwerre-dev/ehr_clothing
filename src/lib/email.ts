@@ -93,6 +93,20 @@ export async function sendOrderStatusUpdateEmail(
   })
 }
 
+// Add these interfaces at the top of the file after the imports
+interface OrderItem {
+  id: string
+  quantity: number
+  price: number
+  size: string
+  color: string
+  title: string
+  product?: {
+    name: string
+    price: number
+  }
+}
+
 export async function sendAdminOrderNotification(
   orderDetails: {
     reference: string
@@ -102,7 +116,7 @@ export async function sendAdminOrderNotification(
     address: string
     city: string
     state: string
-    items: any[]
+    items: OrderItem[] // Replace any[] with OrderItem[]
     total: number
     subtotal: number
     shipping: number
@@ -162,7 +176,7 @@ export async function sendOrderConfirmationEmail(
   orderDetails: {
     reference: string
     customerName: string
-    items: any[]
+    items: OrderItem[] // Replace any[] with OrderItem[]
     total: number
     subtotal: number
     shipping: number

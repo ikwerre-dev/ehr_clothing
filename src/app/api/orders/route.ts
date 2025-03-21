@@ -28,9 +28,52 @@ export async function POST(request: Request) {
                 }
             })
         }
-
-        // Create order data object
-        const orderData: any = {
+        // Uncomment and use the OrderItem interface
+        interface OrderItem {
+            id: string;
+            quantity: number;
+            price: number;
+            size: string;
+            color: string;
+            title?: string;
+        }
+        
+        interface OrderData {
+            reference: string;
+            customerName: string;
+            email: string;
+            phone: string;
+            address: string;
+            city: string;
+            state: string;
+            paymentMethod: string;
+            total: number;
+            subtotal: number;
+            shipping: number;
+            status: 'PENDING';
+            user: {
+                connect: {
+                    id: string;
+                };
+            };
+            items: {
+                create: Array<{
+                    productId: string;
+                    quantity: number;
+                    price: number;
+                    size: string;
+                    color: string;
+                }>;
+            };
+            coupon?: {
+                connect: {
+                    id: string;
+                };
+            };
+        }
+        
+        // Update the type annotations
+        const orderData: OrderData = {
             reference: generateReference(),
             customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
             email: customerInfo.email,
@@ -48,8 +91,9 @@ export async function POST(request: Request) {
                     id: user.id
                 }
             },
+            // Update the items mapping in orderData
             items: {
-                create: items.map((item: any) => ({
+                create: items.map((item: OrderItem) => ({
                     productId: item.id,
                     quantity: item.quantity,
                     price: item.price,
@@ -116,7 +160,7 @@ export async function POST(request: Request) {
             sendOrderConfirmationEmail(customerInfo.email, {
                 reference: order.reference, 
                 customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
-                items: items.map((item: any) => ({
+                items: items.map((item: OrderItem) => ({
                     ...item,
                     title: item.title || 'Product'
                 })),
@@ -136,7 +180,7 @@ export async function POST(request: Request) {
                 address: customerInfo.address,
                 city: customerInfo.city,
                 state: customerInfo.state,
-                items: items.map((item: any) => ({
+                items: items.map((item: OrderItem) => ({
                     ...item,
                     title: item.title || 'Product'
                 })),

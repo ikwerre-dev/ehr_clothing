@@ -10,6 +10,7 @@ export async function GET() {
         })
         return NextResponse.json(products)
     } catch (error) {
+        console.log(error)
         return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
     }
 }
@@ -58,14 +59,18 @@ export async function POST(request: Request) {
             },
         })
 
-
-
         return NextResponse.json(product)
-    } catch (error: any) {
-        console.error('Product creation error:', error)
+    } catch (error: unknown) {
+        const apiError = error as ApiError
+        console.error('Product creation error:', apiError)
         return NextResponse.json(
-            { error: error.message || 'Failed to create product' },
+            { error: apiError.message || 'Failed to create product' },
             { status: 500 }
         )
     }
+}
+
+// Add this interface near the top of the file
+interface ApiError extends Error {
+    message: string;
 }

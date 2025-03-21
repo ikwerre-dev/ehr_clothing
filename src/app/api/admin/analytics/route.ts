@@ -1,14 +1,8 @@
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
-import { Order, User, Product, Category } from '@prisma/client/wasm'
+import { Order, Product, Category } from '@prisma/client/wasm'
 
-// Define types for the data structures
-type OrderWithTotal = Order & {
-  _sum: {
-    total: number | null;
-  };
-}
-
+ 
 type ProductWithOrderItems = Product & {
   orderItems: Array<{
     price: number;
@@ -30,13 +24,7 @@ type CategoryWithProducts = Category & {
     }>;
   }>;
 }
-
-type SalesByDay = Array<{
-  createdAt: Date;
-  _sum: {
-    total: number | null;
-  };
-}>
+ 
 
 type AnalyticsResponse = {
   stats: {
@@ -307,7 +295,16 @@ export async function GET(request: Request) {
     }
     
     // Fill with actual data
-    salesByDay.forEach((day: any) => {
+    // Add this interface near the top with other type definitions
+    interface DailySales {
+      createdAt: Date;
+      _sum: {
+        total: number | null;
+      };
+    }
+    
+    // Update the forEach loop with the proper type
+    salesByDay.forEach((day: DailySales) => {
       const date = new Date(day.createdAt)
       const dayName = daysOfWeek[date.getDay()]
       if (salesByDayMap.has(dayName)) {

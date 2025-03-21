@@ -1,6 +1,5 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { StarIcon } from '@heroicons/react/24/solid'
 import { useDarkMode } from '@/context/DarkModeContext'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'

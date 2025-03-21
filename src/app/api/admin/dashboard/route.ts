@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
-import { Order, Product } from '@prisma/client/wasm'
+import { Order } from '@prisma/client/wasm'
 
 // Update the type definitions to match your actual schema
 type OrderWithRelations = Order & {
@@ -17,7 +17,12 @@ type OrderWithRelations = Order & {
     }>;
 }
 
-type ProductWithRelations = Product & {
+// Uncomment and update the ProductWithRelations type
+type ProductWithRelations = {
+    id: string;
+    name: string;
+    price: number;
+    images: string[];
     _count: {
         orderItems: number;
     };
@@ -150,7 +155,7 @@ export async function GET() {
             items: order.items.length
         }))
 
-        const formattedPopularProducts = popularProducts.map((product: any) => ({
+        const formattedPopularProducts = popularProducts.map((product: ProductWithRelations) => ({
             id: product.id,
             name: product.name,
             price: product.price,

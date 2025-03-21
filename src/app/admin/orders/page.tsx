@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { EyeIcon, XMarkIcon, TruckIcon, CreditCardIcon, MapPinIcon, UserIcon } from '@heroicons/react/24/outline'
-import { toast, ToastBar, Toaster } from 'react-hot-toast'
+import { toast, Toaster } from 'react-hot-toast'
 
 type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
 
-// First, update the Order interface to include coupon information
 interface Order {
     id: string
     reference: string
@@ -52,7 +51,6 @@ interface Order {
 export default function OrdersPage() {
     const [orders, setOrders] = useState<Order[]>([])
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-    const [isLoading, setIsLoading] = useState(true)
     const [statusFilter, setStatusFilter] = useState('all')
     const [searchQuery, setSearchQuery] = useState('')
 
@@ -60,7 +58,6 @@ export default function OrdersPage() {
     const [totalPages, setTotalPages] = useState(0)
     const itemsPerPage = 10
 
-    // Update the fetchOrders function
     const fetchOrders = async () => {
         try {
             const response = await fetch(`/api/admin/orders?page=${currentPage}&limit=${itemsPerPage}`)
@@ -71,8 +68,6 @@ export default function OrdersPage() {
         } catch (error) {
             toast.error('Failed to load orders')
             console.error(error)
-        } finally {
-            setIsLoading(false)
         }
     }
 
@@ -127,14 +122,7 @@ export default function OrdersPage() {
         }
     }
 
-    useEffect(() => {
-        fetchOrders()
-    }, [])
-
-    // Update the fetchOrders function to use currentPage
-    useEffect(() => {
-        fetchOrders()
-    }, [currentPage]) // Add currentPage as dependency
+    fetchOrders()
 
     // Filter and search orders
     const filteredOrders = orders.filter(order => {
@@ -186,7 +174,7 @@ export default function OrdersPage() {
 
             <div className="bg-white rounded-lg shadow overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200">
-                     <thead className="bg-gray-50">
+                    <thead className="bg-gray-50">
                         <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
@@ -199,7 +187,7 @@ export default function OrdersPage() {
                         </tr>
                     </thead>
 
-                     <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white divide-y divide-gray-200">
                         {filteredOrders.map((order) => (
                             <tr key={order.id}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{order.id.substring(0, 8)}</td>

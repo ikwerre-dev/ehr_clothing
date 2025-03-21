@@ -7,6 +7,7 @@ import {
     UserGroupIcon,
     ChartBarIcon
 } from '@heroicons/react/24/outline'
+import Image from 'next/image'
 
 interface OrderItem {
     id: string
@@ -53,7 +54,7 @@ export default function Dashboard() {
     const [isLoading, setIsLoading] = useState(true)
 
 
-     useEffect(() => {
+    useEffect(() => {
         const fetchDashboardData = async () => {
             try {
                 const response = await fetch('/api/admin/dashboard')
@@ -143,8 +144,8 @@ export default function Dashboard() {
                                     </p>
                                 </div>
                                 <span className={`px-3 py-1 rounded-full text-sm ${order.status === 'DELIVERED' ? 'bg-green-100 text-green-800' :
-                                        order.status === 'PROCESSING' ? 'bg-yellow-100 text-yellow-800' :
-                                            'bg-blue-100 text-blue-800'
+                                    order.status === 'PROCESSING' ? 'bg-yellow-100 text-yellow-800' :
+                                        'bg-blue-100 text-blue-800'
                                     }`}>
                                     {order.status.charAt(0) + order.status.slice(1).toLowerCase()}
                                 </span>
@@ -159,8 +160,10 @@ export default function Dashboard() {
                         {dashboardData.popularProducts?.map((product) => (
                             <div key={product.id} className="flex items-center gap-4 py-2 border-b">
                                 <div className="w-12 h-12 bg-gray-100 rounded">
-                                    {product.image  && (
-                                        <img
+                                    {product.image && (
+                                        <Image
+                                            width={150}
+                                            height={150}
                                             src={product.image}
                                             alt={product.name}
                                             className="w-full h-full object-cover rounded"

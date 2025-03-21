@@ -3,6 +3,7 @@
 import { StarIcon } from '@heroicons/react/24/solid'
 import Link from 'next/link'
 import { useDarkMode } from '@/context/DarkModeContext'
+import Image from 'next/image'
 
 interface ProductCardProps {
   id: string
@@ -21,9 +22,11 @@ export function ProductCard({ id, title, price, originalPrice, rating, reviewCou
   return (
     <Link href={`/product/${id}`} className={`group border pb-5 rounded-lg ${isDarkMode ? 'border-[#222]' : 'border-[#666]'}`}>
       <div className={`aspect-square overflow-hidden rounded-lg`}>
-        <img
+        <Image
           src={image}
           alt={title}
+          width={400}
+          height={400}
           className="h-full w-full object-cover object-center group-hover:scale-105 transition-transform"
         />
       </div>

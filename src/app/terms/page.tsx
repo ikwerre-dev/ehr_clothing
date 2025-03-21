@@ -15,7 +15,7 @@ export default function TermsPage() {
           <h1>Terms and Conditions</h1>
           
           <h2>1. Acceptance of Terms</h2>
-          <p>By accessing and using EHR's website, you agree to be bound by these terms and conditions.</p>
+          <p>By accessing and using EHR&apos;s website, you agree to be bound by these terms and conditions.</p>
 
           <h2>2. Use License</h2>
           <p>Permission is granted to temporarily download one copy of the materials for personal, non-commercial transitory viewing only.</p>

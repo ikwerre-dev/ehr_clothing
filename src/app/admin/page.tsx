@@ -15,7 +15,7 @@ export default function AdminPage() {
     } else {
       router.push('/admin/login')
     }
-  }, [isAuthenticated])
+  }, [isAuthenticated,router])
 
   return null
 }

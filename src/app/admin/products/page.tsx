@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
+import Image from 'next/image'
 
 interface Product {
     id: string
@@ -125,8 +126,12 @@ export default function ProductsPage() {
                 categoryId: '',
                 stock: '0',
             })
-        } catch (error: any) {
-            alert(error.message || 'Failed to add product')
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                alert(error.message);
+            } else {
+                alert("An unknown error occurred");
+            }
         } finally {
             setIsSubmitting(false)
         }
@@ -243,7 +248,7 @@ export default function ProductsPage() {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="flex items-center">
                                         <div className="h-10 w-10 rounded-lg bg-gray-100 overflow-hidden">
-                                            <img src={product.images[0]} alt="" className="h-full w-full object-cover" />
+                                            <Image width={250} height={3} src={product.images[0]} alt="" className="h-full w-full object-cover" />
                                         </div>
                                         <div className="ml-4">
                                             <div className="text-sm font-medium text-gray-900">{product.name}</div>
@@ -354,7 +359,7 @@ export default function ProductsPage() {
                                 <div className="space-y-4">
                                     {newProduct.image ? (
                                         <div className="w-40 h-40 rounded-lg overflow-hidden bg-gray-100 border">
-                                            <img src={newProduct.image} alt="Preview" className="w-full h-full object-cover" />
+                                            <Image width={250} height={3} src={newProduct.image} alt="Preview" className="w-full h-full object-cover" />
                                         </div>
                                     ) : (
                                         <div className="w-40 h-40 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
@@ -502,7 +507,7 @@ export default function ProductsPage() {
                                 <div className="space-y-4">
                                     {editingProduct.images[0] ? (
                                         <div className="w-40 h-40 rounded-lg overflow-hidden bg-gray-100 border">
-                                            <img src={editingProduct.images[0]} alt="Preview" className="w-full h-full object-cover" />
+                                            <Image width={250} height={3} src={editingProduct.images[0]} alt="Preview" className="w-full h-full object-cover" />
                                         </div>
                                     ) : (
                                         <div className="w-40 h-40 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">

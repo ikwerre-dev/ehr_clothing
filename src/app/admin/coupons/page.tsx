@@ -395,14 +395,23 @@ export default function CouponsPage() {
                     setSelectedCoupon(null)
                   }}
                   className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center gap-2"
+                  disabled={isSubmitting}
                 >
-                  {selectedCoupon ? 'Update Coupon' : 'Create Coupon'}
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>{selectedCoupon ? 'Updating...' : 'Creating...'}</span>
+                    </>
+                  ) : (
+                    <span>{selectedCoupon ? 'Update Coupon' : 'Create Coupon'}</span>
+                  )}
                 </button>
               </div>
             </form>

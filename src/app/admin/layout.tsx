@@ -5,12 +5,11 @@ import { useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { AdminAuthProvider, useAdminAuth } from '@/context/AdminAuthContext'
-import { 
-  ChartBarIcon, 
-  ShoppingBagIcon, 
-  CubeIcon, 
+import {
+  ChartBarIcon,
+  ShoppingBagIcon,
+  CubeIcon,
   TicketIcon,
-  ShoppingCartIcon,
   CurrencyDollarIcon,
   ChartPieIcon,
   UserGroupIcon,
@@ -51,66 +50,58 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
               <h1 className="text-2xl font-bold text-gray-900">EHR Admin</h1>
             </div>
             <nav className="flex-1 mt-6 space-y-1 px-3">
-              <Link href="/admin/dashboard" 
-                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${
-                  pathname === '/admin/dashboard' ? 'bg-gray-100 text-gray-900' : ''
-                }`}>
+              <Link href="/admin/dashboard"
+                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${pathname === '/admin/dashboard' ? 'bg-gray-100 text-gray-900' : ''
+                  }`}>
                 <ChartBarIcon className="w-5 h-5 mr-3" />
                 Dashboard
               </Link>
-              
-              <Link href="/admin/products" 
-                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${
-                  pathname === '/admin/products' ? 'bg-gray-100 text-gray-900' : ''
-                }`}>
+
+              <Link href="/admin/products"
+                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${pathname === '/admin/products' ? 'bg-gray-100 text-gray-900' : ''
+                  }`}>
                 <CubeIcon className="w-5 h-5 mr-3" />
                 Products
               </Link>
 
-              <Link href="/admin/categories" 
-                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${
-                  pathname === '/admin/categories' ? 'bg-gray-100 text-gray-900' : ''
-                }`}>
+              <Link href="/admin/categories"
+                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${pathname === '/admin/categories' ? 'bg-gray-100 text-gray-900' : ''
+                  }`}>
                 <FolderIcon className="w-5 h-5 mr-3" />
                 Categories
               </Link>
 
-              <Link href="/admin/orders" 
-                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${
-                  pathname === '/admin/orders' ? 'bg-gray-100 text-gray-900' : ''
-                }`}>
+              <Link href="/admin/orders"
+                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${pathname === '/admin/orders' ? 'bg-gray-100 text-gray-900' : ''
+                  }`}>
                 <ShoppingBagIcon className="w-5 h-5 mr-3" />
                 Orders
               </Link>
 
-              <Link href="/admin/customers" 
-                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${
-                  pathname === '/admin/customers' ? 'bg-gray-100 text-gray-900' : ''
-                }`}>
+              <Link href="/admin/customers"
+                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${pathname === '/admin/customers' ? 'bg-gray-100 text-gray-900' : ''
+                  }`}>
                 <UserGroupIcon className="w-5 h-5 mr-3" />
                 Customers
               </Link>
 
-              <Link href="/admin/transactions" 
-                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${
-                  pathname === '/admin/transactions' ? 'bg-gray-100 text-gray-900' : ''
-                }`}>
+              <Link href="/admin/transactions"
+                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${pathname === '/admin/transactions' ? 'bg-gray-100 text-gray-900' : ''
+                  }`}>
                 <CurrencyDollarIcon className="w-5 h-5 mr-3" />
                 Transactions
               </Link>
 
-              <Link href="/admin/analytics" 
-                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${
-                  pathname === '/admin/analytics' ? 'bg-gray-100 text-gray-900' : ''
-                }`}>
+              <Link href="/admin/analytics"
+                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${pathname === '/admin/analytics' ? 'bg-gray-100 text-gray-900' : ''
+                  }`}>
                 <ChartPieIcon className="w-5 h-5 mr-3" />
                 Analytics
               </Link>
 
-              <Link href="/admin/coupons" 
-                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${
-                  pathname === '/admin/coupons' ? 'bg-gray-100 text-gray-900' : ''
-                }`}>
+              <Link href="/admin/coupons"
+                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg ${pathname === '/admin/coupons' ? 'bg-gray-100 text-gray-900' : ''
+                  }`}>
                 <TicketIcon className="w-5 h-5 mr-3" />
                 Coupons
               </Link>

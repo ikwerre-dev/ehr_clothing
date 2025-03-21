@@ -2,11 +2,11 @@
 
 import Link from 'next/link'
 import { ThemeToggle } from './theme-toggle'
-import { ShoppingBagIcon, EnvelopeIcon, MagnifyingGlassIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { ShoppingBagIcon, MagnifyingGlassIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useDarkMode } from '@/context/DarkModeContext'
 import { useCart } from '@/context/CartContext'
 import { useState } from 'react'
-import { HeadsetIcon, PackageSearch } from 'lucide-react'
+import { PackageSearch } from 'lucide-react'
 import { usePathname, useSearchParams } from 'next/navigation'
 
 export function Header({ onSearch }: { onSearch?: (query: string) => void }) {
@@ -45,7 +45,7 @@ export function Header({ onSearch }: { onSearch?: (query: string) => void }) {
                     {getPageTitle() && (
                         <span className="font-medium mr-2">{getPageTitle()}:</span>
                     )}
-                    Use this Promo Code <strong>"RILEY111"</strong> to get 10% off your purchases.
+                    Use this Promo Code <strong>&rdquo;RILEY111&rdquo;</strong> to get 10% off your purchases.
                     <Link href="/shop" className="underline ml-1"> Shop Now</Link>
                 </p>
             </div>

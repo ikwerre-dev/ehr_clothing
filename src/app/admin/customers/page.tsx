@@ -138,9 +138,9 @@ export default function CustomersPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-wrap justify-between items-center">
                 <h1 className="text-2xl font-semibold text-gray-900">Customers</h1>
-                <div className="flex gap-4">
+                <div className="grid md:flex gap-4">
                     <div className="relative">
                         <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                         <input

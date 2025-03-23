@@ -7,7 +7,7 @@ import { useCart } from '@/context/CartContext'
 import { useDarkMode } from '@/context/DarkModeContext'
 import Link from 'next/link'
 import Image from 'next/image'
- 
+
 export default function CheckoutContent() {
     const { isDarkMode } = useDarkMode()
     const { items } = useCart()
@@ -37,13 +37,13 @@ export default function CheckoutContent() {
 
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
     const shipping = 2500
-    
+
     // Calculate discount if coupon is applied
     const discount = appliedCoupon ? appliedCoupon.discountAmount : 0
-    
+
     // Calculate total with discount
     const total = subtotal + shipping - discount
-    
+
     const [isSubmitting, setIsSubmitting] = useState(false)
     // const router = useRouter()
 
@@ -76,8 +76,8 @@ export default function CheckoutContent() {
                 setCouponError(data.error || 'Invalid coupon code')
                 setAppliedCoupon(null)
             } else {
-                setCouponSuccess(`Coupon applied: ${data.coupon.type === 'percentage' ? 
-                    `${data.coupon.discount}% off` : 
+                setCouponSuccess(`Coupon applied: ${data.coupon.type === 'percentage' ?
+                    `${data.coupon.discount}% off` :
                     `₦${data.coupon.discount.toLocaleString()} off`}`)
                 setAppliedCoupon(data.coupon)
             }
@@ -134,11 +134,11 @@ export default function CheckoutContent() {
             document.location.href = data.paymentUrl
             // router.push(`/order-confirmation?reference=${data.reference}`)
         } catch (error) {
+            setIsSubmitting(false)
+
             console.error('Error creating order:', error)
             alert('Failed to place order. Please try again.')
-        } finally {
-            setIsSubmitting(false)
-        }
+        } 
     }
 
     if (items.length === 0) {
@@ -158,7 +158,7 @@ export default function CheckoutContent() {
         )
     }
 
-return (
+    return (
         <div className={`flex flex-col min-h-screen ${isDarkMode ? 'bg-black text-white' : 'bg-white text-black'}`}>
             <Header />
             <main className="flex-grow container mx-auto px-4 py-8">
@@ -259,13 +259,12 @@ return (
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className={`w-full py-3 rounded-lg transition-colors ${
-                                isSubmitting 
+                            className={`w-full py-3 rounded-lg transition-colors ${isSubmitting
                                     ? 'bg-gray-400 cursor-not-allowed'
                                     : isDarkMode
                                         ? 'bg-white text-black hover:bg-gray-200'
                                         : 'bg-black text-white hover:bg-[#111]'
-                            }`}
+                                }`}
                         >
                             {isSubmitting ? 'Processing...' : `Place Order (₦${total.toLocaleString()})`}
                         </button>
@@ -293,7 +292,7 @@ return (
                                     <div className="mb-3">
                                         <div className="flex justify-between items-center">
                                             <span className="text-green-600 font-medium">{couponSuccess}</span>
-                                            <button 
+                                            <button
                                                 onClick={removeCoupon}
                                                 className="text-sm text-red-500 hover:text-red-700"
                                             >
@@ -316,11 +315,10 @@ return (
                                                 type="button"
                                                 onClick={validateCoupon}
                                                 disabled={validatingCoupon}
-                                                className={`px-3 py-2 rounded-lg text-sm ${
-                                                    isDarkMode
+                                                className={`px-3 py-2 rounded-lg text-sm ${isDarkMode
                                                         ? 'bg-white text-black hover:bg-gray-200'
                                                         : 'bg-black text-white hover:bg-[#333]'
-                                                } ${validatingCoupon ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                    } ${validatingCoupon ? 'opacity-50 cursor-not-allowed' : ''}`}
                                             >
                                                 {validatingCoupon ? 'Applying...' : 'Apply'}
                                             </button>
@@ -354,9 +352,9 @@ return (
                             </div>
                         </div>
                     </div>
-</div>
+                </div>
             </main>
             <Footer />
         </div>
-)
+    )
 }

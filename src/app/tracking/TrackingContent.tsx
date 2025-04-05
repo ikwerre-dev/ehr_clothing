@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { useDarkMode } from '@/context/DarkModeContext'
@@ -35,12 +35,48 @@ interface OrderData {
     createdAt: string
 }
 
-export default function TrackingContent() {
+interface TrackingContentProps {
+    initialTrackingNumber: string
+}
+
+export default function TrackingContent({ initialTrackingNumber }: TrackingContentProps) {
     const { isDarkMode } = useDarkMode()
-    const [trackingNumber, setTrackingNumber] = useState('')
+    const [trackingNumber, setTrackingNumber] = useState(initialTrackingNumber)
     const [isSearching, setIsSearching] = useState(false)
     const [error, setError] = useState('')
     const [orderData, setOrderData] = useState<OrderData | null>(null)
+
+     // Add useEffect to automatically trigger search if initialTrackingNumber is provided
+     useEffect(() => {
+         if (initialTrackingNumber) {
+             const fetchData = async () => {
+                 setIsSearching(true)
+                 setError('')
+                 setOrderData(null)
+     
+                 try {
+                     const response = await fetch(`/api/tracking?reference=${initialTrackingNumber}`)
+                     const data = await response.json()
+     
+                     if (!response.ok) {
+                         throw new Error(data.error || 'Failed to fetch order')
+                     }
+     
+                     setOrderData(data)
+                 } catch (error: unknown) {
+                     if (error instanceof Error) {
+                         setError(error.message);
+                     } else {
+                         setError("An unknown error occurred");
+                     }
+                 } finally {
+                     setIsSearching(false);
+                 }
+             }
+     
+             fetchData()
+         }
+     }, [initialTrackingNumber]);
 
     const getTrackingSteps = (status: OrderStatus): TrackingStep[] => {
         const steps: TrackingStep[] = [

@@ -50,6 +50,8 @@ export async function GET(request: Request) {
                 }
             })
 
+            console.log(order)
+
             if (!order) {
                 throw new Error('Order not found')
             }
@@ -62,6 +64,7 @@ export async function GET(request: Request) {
                     reference: order.reference,
                     customerName: order.customerName,
                     amount: order.total,
+                    phone: order.phone,
                     items: order.items.map((item) => ({
                         id: item.id,
                         title: item.product.name,

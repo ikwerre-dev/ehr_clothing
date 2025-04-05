@@ -2,8 +2,12 @@
 
 import { Suspense } from 'react'
 import TrackingContent from './TrackingContent'
+import { useSearchParams } from 'next/navigation'
 
 export default function TrackingPage() {
+    const searchParams = useSearchParams()
+    const code = searchParams.get('code')
+
     return (
         <Suspense fallback={
             <div className="flex min-h-screen items-center justify-center">
@@ -13,7 +17,7 @@ export default function TrackingPage() {
                 </div>
             </div>
         }>
-            <TrackingContent />
+            <TrackingContent initialTrackingNumber={code || ''} />
         </Suspense>
     )
 }

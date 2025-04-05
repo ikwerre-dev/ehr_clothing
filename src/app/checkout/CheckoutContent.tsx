@@ -201,7 +201,7 @@ export default function CheckoutContent() {
                         </div>
 
                         <div>
-                            <label className="block mb-1">Phone</label>
+                            <label className="block mb-1">Whatsapp Phone Number</label>
                             <input
                                 type="tel"
                                 required

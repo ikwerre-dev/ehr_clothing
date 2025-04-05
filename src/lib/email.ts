@@ -12,11 +12,12 @@ const transporter = nodemailer.createTransport({
 
 // Shared email template
 const emailTemplate = (content: string) => `
-  
         <div class="content">
           ${content}
         </div>
-     
+        <div class="footer">
+          <p>© ${new Date().getFullYear()} EHR Clothing. All rights reserved.</p>
+  </div>
 `
 
 // Update the order status email function
@@ -63,9 +64,9 @@ export async function sendOrderStatusUpdateEmail(
   `
 
   await transporter.sendMail({
-    from: `E.H.R Clothing <${process.env.SMTP_USER}>`,
+    from: process.env.SMTP_USER,
     to: email,
-    subject: `Order Status Update - ${details.reference}`,
+    subject: `E.H.R - Order Status Update - ${details.reference}`,
     html: emailTemplate(content),
   })
 }
@@ -141,9 +142,9 @@ export async function sendAdminOrderNotification(
   `
 
   await transporter.sendMail({
-    from: `E.H.R Clothing <${process.env.SMTP_USER}>`,
+    from: process.env.SMTP_USER,
     to: process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'investorhonour@gmail.com',
-    subject: `New Order Alert - ${orderDetails.reference}`,
+    subject: `E.H.R - New Order Alert - ${orderDetails.reference}`,
     html: emailContent,
   })
 }
@@ -162,65 +163,24 @@ export async function sendOrderConfirmationEmail(
   }
 ) {
   const content = `
-    <h2>Order Confirmation</h2>
+    <h1>Order Confirmation</h1>
     <p>Dear ${orderDetails.customerName},</p>
-    <p>Thank you for your order! Your order has been received and payment has been initiated.</p>
-    
-    <div style="background: #3498db; color: white; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;">
-      <h3 style="margin: 0;">Order Reference: ${orderDetails.reference}</h3>
-    </div>
-    
-    <div class="item-list">
-      <h3>Items:</h3>
-      <ul style="list-style: none; padding: 0;">
-        ${orderDetails.items
-      .map(
-        (item) => `
-          <li style="padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
-            <div>
-              <strong>${item.title}</strong><br>
-              <span style="color: #666;">Size: ${item.size} • Color: ${item.color} • Qty: ${item.quantity}</span>
-            </div>
-            <div style="text-align: right;">
-              ₦${(item.price * item.quantity).toLocaleString()}
-            </div>
-          </li>
-        `
-      )
-      .join('')}
-      </ul>
-    </div>
-    
-    <div class="total-section">
-      <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-        <span>Subtotal:</span>
-        <span>₦${orderDetails.subtotal.toLocaleString()}</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-        <span>Shipping:</span>
-        <span>₦${orderDetails.shipping.toLocaleString()}</span>
-      </div>
-      ${orderDetails.discount && orderDetails.discount > 0 ? `
-      <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #2ecc71;">
-        <span>Discount${orderDetails.coupon ? ` (${orderDetails.coupon.code})` : ''}:</span>
-        <span>-₦${orderDetails.discount.toLocaleString()}</span>
-      </div>
-      ` : ''}
-      <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1em; margin-top: 12px; padding-top: 12px; border-top: 2px solid #eee;">
-        <span>Total:</span>
-        <span>₦${orderDetails.total.toLocaleString()}</span>
-      </div>
-    </div>
-    
-    <p style="margin-top: 20px;">We will notify you once your order has been shipped.</p>
-    
+    <p>Thank you for shopping with us! We have received your order and it is being processed.</p>
+    <p>Order Reference: ${orderDetails.reference}</p>
+   
+    <p>We will notify you once your order has been shipped.</p>
+
     <p>Best regards,<br>EHR Clothing Team</p>
-  `
+
+    <hr>
+    <p>This message was sent because you placed an order at EHR Clothing.<br>
+    Contact us: ${process.env.NEXT_PUBLIC_ADMIN_PHONE}<br>
+   `
 
   await transporter.sendMail({
-    from: `E.H.R Clothing <${process.env.SMTP_USER}>`,
+    from: process.env.SMTP_USER,
     to: email,
-    subject: `Order Confirmation - ${orderDetails.reference}`,
+    subject: `E.H.R - Order Confirmation - ${orderDetails.reference}`,
     html: emailTemplate(content),
   })
 }
@@ -232,29 +192,60 @@ export async function sendPaymentConfirmationEmail(to: string, data: {
   reference: string;
   customerName: string;
   amount: number;
+  phone: string;
   items: OrderItem[];
 }) {
-  const { reference, customerName, amount, items } = data;
+  const { reference, customerName, amount, items, phone } = data;
+  const trackingUrl = `https://ehrclothing.store/tracking?code=${reference}`;
 
   const content = `
-    <h2>Payment Successful!</h2>
+    <h2>Order Processing Update</h2>
     <p>Dear ${customerName},</p>
-    <p>Thank you for your payment of ₦${amount.toLocaleString()}. Your order (${reference}) is now being processed.</p>
+    <p>Thank you for completing your order (${reference}). We are now processing your request.</p>
     <h3>Order Details:</h3>
     <ul>
       ${items.map(item => `<li>${item.name} x ${item.quantity} - ₦${item.price.toLocaleString()}</li>`).join('')}
     </ul>
-    <p>Total: ₦${amount.toLocaleString()}</p>
-    <p>We’ll notify you once your order has been shipped.</p>
-    <p>Best regards,<br>E.H.R Clothing Team</p>
+    <p>Order Total: ₦${amount.toLocaleString()}</p>
+    <p>Track your order here: <a href="${trackingUrl}">${trackingUrl}</a></p>
+    <p>We'll notify you once your items have been shipped.</p>
+    <p>Best regards,<br>EHR Clothing Team</p>
   `;
 
-  await transporter.sendMail({
-    from: `E.H.R Clothing <${process.env.SMTP_USER}>`,
-    to,
-    subject: 'Payment Confirmed - Your Order is Being Processed',
-    html: emailTemplate(content),
-  });
+  // WhatsApp message content
+  const whatsappContent = `Dear ${customerName},\n\nThank you for completing your order (${reference}). We are now processing your request.\n\nOrder Details:\n${items.map(item => `${item.name} x ${item.quantity} - ₦${item.price.toLocaleString()}`).join('\n')}\n\nOrder Total: ₦${amount.toLocaleString()}\n\nTrack your order here: ${trackingUrl}\n\nWe'll notify you once your items have been shipped.\n\nBest regards,\nEHR Clothing Team`;
+
+  // Send WhatsApp message
+  const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+  const urlencoded = new URLSearchParams();
+  urlencoded.append("token", "0vkwos7s07t0ljee");
+  urlencoded.append("to", phone);
+  urlencoded.append("body", whatsappContent);
+
+  const requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: urlencoded,
+    redirect: 'follow' as RequestRedirect
+  };
+
+  try {
+    // Send both email and WhatsApp message in parallel
+    await Promise.all([
+      transporter.sendMail({
+        from: process.env.SMTP_USER,
+        to,
+        subject: `E.H.R - Order Processing Started - ${reference}`,
+        html: emailTemplate(content),
+      }),
+      fetch("https://api.ultramsg.com/instance112936/messages/chat", requestOptions)
+    ]);
+  } catch (error) {
+    console.error('Error sending notifications:', error);
+    throw error;
+  }
 }
 
 export async function sendAdminPaymentNotification(data: {
@@ -266,6 +257,7 @@ export async function sendAdminPaymentNotification(data: {
   items: OrderItem[];
 }) {
   const { to, reference, customerName, customerEmail, amount, items } = data;
+  const trackingUrl = `https://ehrclothing.store/tracking?code=${reference}`;
 
   const content = `
     <h2>New Payment Received</h2>
@@ -277,15 +269,45 @@ export async function sendAdminPaymentNotification(data: {
       ${items.map(item => `<li>${item.name} x ${item.quantity} - ₦${item.price.toLocaleString()}</li>`).join('')}
     </ul>
     <p>Total Amount: ₦${amount.toLocaleString()}</p>
+    <p>Track this order: <a href="${trackingUrl}">${trackingUrl}</a></p>
     <p>Please process this order as soon as possible.</p>
   `;
 
-  await transporter.sendMail({
-    from: `E.H.R Clothing <${process.env.SMTP_USER}>`,
-    to,
-    subject: `New Payment Received - Order ${reference}`,
-    html: emailTemplate(content),
-  });
+  // WhatsApp message content for admin
+  const whatsappContent = `🔔 New Payment Received!\n\nOrder: ${reference}\nCustomer: ${customerName}\nEmail: ${customerEmail}\nAmount: ₦${amount.toLocaleString()}\n\nTrack order: ${trackingUrl}`;
+
+  console.log(whatsappContent) 
+  // Send WhatsApp message
+  const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+  const urlencoded = new URLSearchParams();
+  urlencoded.append("token", "0vkwos7s07t0ljee");
+  urlencoded.append("to", process.env.NEXT_PUBLIC_ADMIN_PHONE || '');
+  urlencoded.append("body", whatsappContent);
+
+  const requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: urlencoded,
+    redirect: 'follow' as RequestRedirect
+  };
+
+  try {
+    // Send both email and WhatsApp message in parallel
+    await Promise.all([
+      transporter.sendMail({
+        from: process.env.SMTP_USER,
+        to,
+        subject: `E.H.R - New Payment Received - Order ${reference}`,
+        html: emailTemplate(content),
+      }),
+      fetch("https://api.ultramsg.com/instance112936/messages/chat", requestOptions)
+    ]);
+  } catch (error) {
+    console.error('Error sending admin notifications:', error);
+    throw error;
+  }
 }
 
 export async function sendContactNotification({
@@ -312,9 +334,9 @@ export async function sendContactNotification({
   `;
 
   await transporter.sendMail({
-    from: `E.H.R Clothing <${process.env.SMTP_USER}>`,
+    from: process.env.SMTP_USER,
     to,
-    subject: `New Contact Form Submission: ${subject}`,
+    subject: `E.H.R - New Contact Form Submission: ${subject}`,
     html: emailTemplate(content),
   });
 }
@@ -334,7 +356,7 @@ export async function sendContactConfirmation({
   `;
 
   await transporter.sendMail({
-    from: `E.H.R Clothing <${process.env.SMTP_USER}>`,
+    from: process.env.SMTP_USER,
     to,
     subject: 'We received your message',
     html: emailTemplate(content),

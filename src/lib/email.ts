@@ -12,34 +12,11 @@ const transporter = nodemailer.createTransport({
 
 // Shared email template
 const emailTemplate = (content: string) => `
-  <!DOCTYPE html>
-  <html>
-    <head>
-      <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #000; color: white; padding: 20px; text-align: center; }
-        .content { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .footer { text-align: center; margin-top: 20px; padding: 20px; color: #666; }
-        .status-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-weight: bold; }
-        .item-list { background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 10px 0; }
-        .total-section { border-top: 2px solid #eee; margin-top: 20px; padding-top: 20px; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <h1>EHR Clothing</h1>
-        </div>
+  
         <div class="content">
           ${content}
         </div>
-        <div class="footer">
-          <p>© ${new Date().getFullYear()} EHR Clothing. All rights reserved.</p>
-        </div>
-      </div>
-    </body>
-  </html>
+     
 `
 
 // Update the order status email function

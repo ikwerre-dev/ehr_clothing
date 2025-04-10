@@ -8,6 +8,7 @@ export async function GET() {
                 category: true,
             },
         })
+        console.log('products')
         return NextResponse.json(products)
     } catch (error) {
         console.log(error)
@@ -27,8 +28,7 @@ export async function POST(request: Request) {
             )
         }
 
-        // Convert price to number and validate
-        const price = parseFloat(data.price)
+         const price = parseFloat(data.price)
         if (isNaN(price) || price < 0) {
             return NextResponse.json(
                 { error: 'Invalid price' },

@@ -35,8 +35,7 @@ export default function ShopContent({ initialProducts, categories }: ShopContent
     const [isFilterOpen, setIsFilterOpen] = useState(false)
     const [isSearchOpen, setIsSearchOpen] = useState(false)
 
-    // Remove the categories fetch since we receive them as props
-    
+     
     // Update products fetch
     useEffect(() => {
         const fetchProducts = async () => {

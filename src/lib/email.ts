@@ -196,7 +196,6 @@ export async function sendPaymentConfirmationEmail(to: string, data: {
   items: OrderItem[];
 }) {
   const { reference, customerName, amount, items, phone } = data;
-  const trackingUrl = `https://ehrclothing.store/tracking?code=${reference}`;
 
   const content = `
     <h2>Order Processing Update</h2>
@@ -207,13 +206,12 @@ export async function sendPaymentConfirmationEmail(to: string, data: {
       ${items.map(item => `<li>${item.name} x ${item.quantity} - ₦${item.price.toLocaleString()}</li>`).join('')}
     </ul>
     <p>Order Total: ₦${amount.toLocaleString()}</p>
-    <p>Track your order here: <a href="${trackingUrl}">${trackingUrl}</a></p>
     <p>We'll notify you once your items have been shipped.</p>
     <p>Best regards,<br>EHR Clothing Team</p>
   `;
 
   // WhatsApp message content
-  const whatsappContent = `Dear ${customerName},\n\nThank you for completing your order (${reference}). We are now processing your request.\n\nOrder Details:\n${items.map(item => `${item.name} x ${item.quantity} - ₦${item.price.toLocaleString()}`).join('\n')}\n\nOrder Total: ₦${amount.toLocaleString()}\n\nTrack your order here: ${trackingUrl}\n\nWe'll notify you once your items have been shipped.\n\nBest regards,\nEHR Clothing Team`;
+  const whatsappContent = `Dear ${customerName},\n\nThank you for completing your order (${reference}). We are now processing your request.\n\nOrder Details:\n${items.map(item => `${item.name} x ${item.quantity} - ₦${item.price.toLocaleString()}`).join('\n')}\n\nOrder Total: ₦${amount.toLocaleString()}\n\nWe'll notify you once your items have been shipped.\n\nBest regards,\nEHR Clothing Team`;
 
   // Send WhatsApp message
   const myHeaders = new Headers();
@@ -294,8 +292,7 @@ export async function sendAdminPaymentNotification(data: {
   };
 
   try {
-    // Send both email and WhatsApp message in parallel
-    await Promise.all([
+     await Promise.all([
       transporter.sendMail({
         from: process.env.SMTP_USER,
         to,

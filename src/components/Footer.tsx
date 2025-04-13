@@ -25,10 +25,10 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">Shop</h3>
             <ul className="space-y-2">
-              <li><Link href="/all" className={`${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}>All Products</Link></li>
-              <li><Link href="/new" className={`${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}>New Arrivals</Link></li>
-              <li><Link href="/best" className={`${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}>Best Sellers</Link></li>
-              <li><Link href="/sale" className={`${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}>On Sale</Link></li>
+              <li><Link href="/shop" className={`${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}>All Products</Link></li>
+              <li><Link href="/shop" className={`${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}>New Arrivals</Link></li>
+              <li><Link href="/shop" className={`${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}>Best Sellers</Link></li>
+              <li><Link href="/shop" className={`${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-600'}`}>On Sale</Link></li>
             </ul>
           </div>
 

@@ -77,8 +77,7 @@ export default function OrdersPage() {
         fetchOrders();
     }, [currentPage]);
 
-    // Prevent body scroll when modal is open
-    useEffect(() => {
+     useEffect(() => {
         if (selectedOrder) {
             document.body.style.overflow = 'hidden';
         } else {

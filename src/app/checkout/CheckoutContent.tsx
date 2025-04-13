@@ -41,7 +41,6 @@ export default function CheckoutContent() {
     // Calculate discount if coupon is applied
     const discount = appliedCoupon ? appliedCoupon.discountAmount : 0
 
-    // Calculate total with discount
     const total = subtotal + shipping - discount
 
     const [isSubmitting, setIsSubmitting] = useState(false)

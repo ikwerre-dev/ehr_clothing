@@ -1,17 +1,20 @@
 'use client';
 
 import { Suspense, useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import ShopContent from './ShopContent';
 
 export default function ShopPage() {
   const [data, setData] = useState({ products: [], categories: [] });
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get('search') || '';
 
   useEffect(() => {
     async function fetchData() {
       try {
         const [productsRes, categoriesRes] = await Promise.all([
-          fetch('/api/products'),
+          fetch(`/api/products${searchQuery ? `?search=${searchQuery}` : ''}`),
           fetch('/api/categories'),
         ]);
 
@@ -32,7 +35,7 @@ export default function ShopPage() {
     }
 
     fetchData();
-  }, []); 
+  }, [searchQuery]); 
 
   if (loading) {
     return (
@@ -56,7 +59,11 @@ export default function ShopPage() {
         </div>
       }
     >
-      <ShopContent initialProducts={data.products} categories={data.categories} />
+      <ShopContent 
+        initialProducts={data.products} 
+        categories={data.categories}
+        initialSearch={searchQuery}
+      />
     </Suspense>
   );
 }

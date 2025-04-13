@@ -1,75 +1,94 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { EyeIcon, XMarkIcon, TruckIcon, CreditCardIcon, MapPinIcon, UserIcon } from '@heroicons/react/24/outline'
-import { toast, Toaster } from 'react-hot-toast'
+import { useEffect, useState } from 'react';
+import { XMarkIcon, TruckIcon, CreditCardIcon, MapPinIcon, UserIcon } from '@heroicons/react/24/outline';
+import { toast, Toaster } from 'react-hot-toast';
 
-type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
 
 interface Order {
-    id: string
-    reference: string
-    customerName: string
-    email: string
-    phone: string
-    address: string
-    city: string
-    state: string
-    paymentMethod: string
-    total: number
-    subtotal: number
-    shipping: number
-    discount?: number
+    id: string;
+    reference: string;
+    customerName: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
+    state: string;
+    paymentMethod: string;
+    total: number;
+    subtotal: number;
+    shipping: number;
+    discount?: number;
     coupon?: {
-        id: string
-        code: string
-        discount: number
-        type: string
-    } | null
-    status: OrderStatus
-    createdAt: string
-    updatedAt: string
+        id: string;
+        code: string;
+        discount: number;
+        type: string;
+    } | null;
+    status: OrderStatus;
+    createdAt: string;
+    updatedAt: string;
     user: {
-        id: string
-        name: string
-        email: string
-        phone: string
-    }
+        id: string;
+        name: string;
+        email: string;
+        phone: string;
+    };
     items: {
-        id: string
-        quantity: number
-        price: number
-        size: string
-        color: string
+        id: string;
+        quantity: number;
+        price: number;
+        size: string;
+        color: string;
         product: {
-            name: string
-            price: number
-        }
-    }[]
+            name: string;
+            price: number;
+        };
+    }[];
 }
 
 export default function OrdersPage() {
-    const [orders, setOrders] = useState<Order[]>([])
-    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-    const [statusFilter, setStatusFilter] = useState('all')
-    const [searchQuery, setSearchQuery] = useState('')
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
+    const itemsPerPage = 10;
 
-    const [currentPage, setCurrentPage] = useState(1)
-    const [totalPages, setTotalPages] = useState(0)
-    const itemsPerPage = 10
 
-    const fetchOrders = async () => {
-        try {
-            const response = await fetch(`/api/admin/orders?page=${currentPage}&limit=${itemsPerPage}`)
-            if (!response.ok) throw new Error('Failed to fetch orders')
-            const data = await response.json()
-            setOrders(data.orders)
-            setTotalPages(Math.ceil(data.total / itemsPerPage))
-        } catch (error) {
-            toast.error('Failed to load orders')
-            console.error(error)
+
+    useEffect(() => {
+
+        async function fetchOrders() {
+            try {
+                const response = await fetch(`/api/admin/orders?page=${currentPage}&limit=${itemsPerPage}`);
+                if (!response.ok) throw new Error('Failed to fetch orders');
+                const data = await response.json();
+                setOrders(data.orders);
+                setTotalPages(Math.ceil(data.total / itemsPerPage));
+            } catch (error) {
+                toast.error('Failed to load orders');
+                console.error(error);
+            }
+        };
+
+        fetchOrders();
+    }, [currentPage]);
+
+    // Prevent body scroll when modal is open
+    useEffect(() => {
+        if (selectedOrder) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
         }
-    }
+        // Cleanup on unmount or when selectedOrder changes
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [selectedOrder]);
 
     // Update order status
     const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
@@ -78,30 +97,25 @@ export default function OrdersPage() {
                 duration: 4000,
                 position: 'top-center',
                 icon: '🔔',
-
-            })
+            });
             const response = await fetch(`/api/admin/orders/${orderId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus }),
-            })
+            });
 
-            if (!response.ok) throw new Error('Failed to update order status')
+            if (!response.ok) throw new Error('Failed to update order status');
 
-            // Update local state
-            setOrders(orders.map(order =>
+            setOrders(orders.map((order) =>
                 order.id === orderId ? { ...order, status: newStatus } : order
-            ))
-
-
+            ));
 
             toast.success(`Order status updated to ${newStatus.toUpperCase()}`, {
                 duration: 4000,
                 position: 'top-center',
                 icon: '🔔',
+            });
 
-            })
-            // Send email notification
             await fetch('/api/notifications/order-status', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -110,46 +124,41 @@ export default function OrdersPage() {
                     reference: selectedOrder?.reference,
                     status: newStatus,
                     email: selectedOrder?.email,
-                    customerName: selectedOrder?.customerName
+                    customerName: selectedOrder?.customerName,
                 }),
-            })
-
-
-
+            });
         } catch (error) {
-            toast.error('Failed to update order status')
-            console.error(error)
+            toast.error('Failed to update order status');
+            console.error(error);
         }
-    }
-
-    fetchOrders()
+    };
 
     // Filter and search orders
-    const filteredOrders = orders.filter(order => {
-        const matchesStatus = statusFilter === 'all' || order.status === statusFilter
-        const matchesSearch = searchQuery === '' ||
+    const filteredOrders = orders.filter((order) => {
+        const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+        const matchesSearch =
+            searchQuery === '' ||
             order.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            order.id.toLowerCase().includes(searchQuery.toLowerCase())
-        return matchesStatus && matchesSearch
-    })
+            order.id.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesStatus && matchesSearch;
+    });
 
     const getStatusColor = (status: OrderStatus) => {
+        status = status.toLowerCase() as OrderStatus;
         switch (status) {
-            case 'pending': return 'bg-yellow-100 text-yellow-800'
-            case 'processing': return 'bg-blue-100 text-blue-800'
-            case 'shipped': return 'bg-purple-100 text-purple-800'
-            case 'delivered': return 'bg-green-100 text-green-800'
-            case 'cancelled': return 'bg-red-100 text-red-800'
+            case 'pending': return 'bg-yellow-100 text-yellow-800';
+            case 'processing': return 'bg-blue-100 text-blue-800';
+            case 'shipped': return 'bg-purple-100 text-purple-800';
+            case 'delivered': return 'bg-green-100 text-green-800';
+            case 'cancelled': return 'bg-red-100 text-red-800';
         }
-    }
+    };
 
-
-    console.log(selectedOrder)
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-wrap justify-between items-center">
                 <h1 className="text-2xl font-semibold">Orders</h1>
-                <div className="flex gap-4">
+                <div className="flex flex-wrap gap-4 mt-5 md:mt-0">
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
@@ -173,119 +182,135 @@ export default function OrdersPage() {
             </div>
 
             <div className="bg-white rounded-lg shadow overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Items</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Coupon</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredOrders.map((order) => (
-                            <tr key={order.id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{order.id.substring(0, 8)}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {new Date(order.createdAt).toLocaleDateString()}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.user.name}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {order.items.reduce((sum, item) => sum + item.quantity, 0)}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    ₦{order.total?.toLocaleString()}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {order.coupon ? (
-                                        <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                                            {order.coupon.code} ({order.discount ? `₦${order.discount.toLocaleString()}` : '0'})
-                                        </span>
-                                    ) : (
-                                        <span className="text-gray-400">-</span>
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button
-                                        onClick={() => setSelectedOrder(order)}
-                                        className="text-blue-600 hover:text-blue-900"
-                                    >
-                                        <EyeIcon className="w-5 h-5" />
-                                    </button>
-                                </td>
+                <div className="overflow-scroll">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Items</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Coupon</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {filteredOrders.map((order) => (
+                                <tr key={order.id}>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button
+                                            onClick={() => setSelectedOrder(order)}
+                                            className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                        >
+                                            View
+                                        </button>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
+                                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        #{order.id.substring(0, 8)}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {new Date(order.createdAt).toLocaleDateString()}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.user.name}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {order.items.reduce((sum, item) => sum + item.quantity, 0)}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        ₦{order.total?.toLocaleString()}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {order.coupon ? (
+                                            <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+                                                {order.coupon.code} ({order.discount ? `₦${order.discount.toLocaleString()}` : '0'})
+                                            </span>
+                                        ) : (
+                                            <span className="text-gray-400">-</span>
+                                        )}
+                                    </td>
+
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            {/* Order Details Modal */}
             {selectedOrder && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm min-h-screen z-50 flex items-center justify-center">
-                    <div className="bg-white rounded-xl p-8 w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
-                        <div className="flex justify-between items-start mb-8">
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm min-h-screen z-50 flex items-center justify-center p-4 sm:p-0 ">
+                    <div className="bg-white rounded-xl p-4 sm:p-8 pb-[10rem] pt-[2rem] sm:pb-12 w-full max-w-full sm:max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
+                        <div className="flex justify-between items-start mb-6 sm:mb-8">
                             <div>
                                 <div className="flex items-center gap-3 mb-2">
-                                    <h2 className="text-2xl font-bold">Order #{selectedOrder.reference}</h2>
-                                    <span className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedOrder.status)}`}>
+                                    <h2 className="text-xl sm:text-2xl font-bold">Order #{selectedOrder.reference}</h2>
+                                    <span
+                                        className={`px-2 sm:px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedOrder.status)}`}
+                                    >
                                         {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
                                     </span>
                                 </div>
-                                <p className="text-gray-500">Placed on {new Date(selectedOrder.createdAt).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                })}</p>
+                                <p className="text-gray-500 text-sm sm:text-base">
+                                    Placed on{' '}
+                                    {new Date(selectedOrder.createdAt).toLocaleDateString('en-US', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                    })}
+                                </p>
                             </div>
-                            <button onClick={() => setSelectedOrder(null)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                            <button
+                                onClick={() => setSelectedOrder(null)}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
                                 <XMarkIcon className="w-6 h-6" />
                             </button>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-8">
-                            <div className="col-span-2 space-y-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8">
+                            <div className="col-span-1 sm:col-span-2 space-y-6 sm:space-y-8">
                                 {/* Order Items */}
-                                <div className="bg-gray-50 rounded-lg p-6">
-                                    <h3 className="font-semibold mb-4 flex items-center gap-2">
+                                <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
+                                    <h3 className="font-semibold mb-4 flex items-center gap-2 text-base sm:text-lg">
                                         <TruckIcon className="w-5 h-5 text-gray-600" />
                                         Order Items
                                     </h3>
                                     <div className="space-y-4">
                                         {selectedOrder.items.map((item) => (
-                                            <div key={item.id} className="flex items-center justify-between py-3 border-b last:border-0">
+                                            <div
+                                                key={item.id}
+                                                className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-3 border-b last:border-0 gap-2 sm:gap-0"
+                                            >
                                                 <div className="flex items-center gap-4">
                                                     <div>
-                                                        <p className="font-medium">{item.product.name}</p>
-                                                        <p className="text-sm text-gray-500">
+                                                        <p className="font-medium text-sm sm:text-base">{item.product.name}</p>
+                                                        <p className="text-xs sm:text-sm text-gray-500">
                                                             Size: {item.size} • Color: {item.color} • Qty: {item.quantity}
                                                         </p>
                                                     </div>
                                                 </div>
-                                                <p className="font-medium">₦{(item.price * item.quantity).toLocaleString()}</p>
+                                                <p className="font-medium text-sm sm:text-base">
+                                                    ₦{(item.price * item.quantity).toLocaleString()}
+                                                </p>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
 
                                 {/* Payment Details */}
-                                <div className="bg-gray-50 rounded-lg p-6">
-                                    <h3 className="font-semibold mb-4 flex items-center gap-2">
+                                <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
+                                    <h3 className="font-semibold mb-4 flex items-center gap-2 text-base sm:text-lg">
                                         <CreditCardIcon className="w-5 h-5 text-gray-600" />
                                         Payment Details
                                     </h3>
-                                    <div className="space-y-2">
+                                    <div className="space-y-2 text-sm sm:text-base">
                                         <div className="flex justify-between">
                                             <span className="text-gray-600">Subtotal</span>
                                             <span>₦{selectedOrder.subtotal.toLocaleString()}</span>
@@ -308,14 +333,14 @@ export default function OrdersPage() {
                                 </div>
                             </div>
 
-                            <div className="space-y-8">
+                            <div className="space-y-6 sm:space-y-8">
                                 {/* Customer Info */}
-                                <div className="bg-gray-50 rounded-lg p-6">
-                                    <h3 className="font-semibold mb-4 flex items-center gap-2">
+                                <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
+                                    <h3 className="font-semibold mb-4 flex items-center gap-2 text-base sm:text-lg">
                                         <UserIcon className="w-5 h-5 text-gray-600" />
                                         Customer Details
                                     </h3>
-                                    <div className="space-y-2">
+                                    <div className="space-y-2 text-sm sm:text-base">
                                         <p className="font-medium">{selectedOrder.customerName}</p>
                                         <p className="text-gray-600">{selectedOrder.email}</p>
                                         <p className="text-gray-600">{selectedOrder.phone}</p>
@@ -323,12 +348,12 @@ export default function OrdersPage() {
                                 </div>
 
                                 {/* Shipping Address */}
-                                <div className="bg-gray-50 rounded-lg p-6">
-                                    <h3 className="font-semibold mb-4 flex items-center gap-2">
+                                <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
+                                    <h3 className="font-semibold mb-4 flex items-center gap-2 text-base sm:text-lg">
                                         <MapPinIcon className="w-5 h-5 text-gray-600" />
                                         Shipping Address
                                     </h3>
-                                    <div className="space-y-1">
+                                    <div className="space-y-1 text-sm sm:text-base">
                                         <p className="text-gray-600">{selectedOrder.address}</p>
                                         <p className="text-gray-600">{selectedOrder.city}</p>
                                         <p className="text-gray-600">{selectedOrder.state}</p>
@@ -336,8 +361,8 @@ export default function OrdersPage() {
                                 </div>
 
                                 {/* Order Status */}
-                                <div className="bg-gray-50 rounded-lg p-6">
-                                    <h3 className="font-semibold mb-4">Update Status</h3>
+                                <div className="bg-gray-50 rounded-lg p-4 sm:p-6 ">
+                                    <h3 className="font-semibold mb-4 text-base sm:text-lg">Update Status</h3>
                                     <select
                                         value={selectedOrder.status}
                                         onChange={(e) => updateOrderStatus(selectedOrder.id, e.target.value as OrderStatus)}
@@ -360,14 +385,14 @@ export default function OrdersPage() {
             <div className="mt-6 flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
                 <div className="flex flex-1 justify-between sm:hidden">
                     <button
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
                         className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                     >
                         Previous
                     </button>
                     <button
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                         disabled={currentPage === totalPages}
                         className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                     >
@@ -377,7 +402,7 @@ export default function OrdersPage() {
                 <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                     <div>
                         <p className="text-sm text-gray-700">
-                            Showing <span className="font-medium">{((currentPage - 1) * itemsPerPage) + 1}</span> to{' '}
+                            Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
                             <span className="font-medium">{Math.min(currentPage * itemsPerPage, orders.length)}</span> of{' '}
                             <span className="font-medium">{orders.length}</span> results
                         </p>
@@ -385,7 +410,7 @@ export default function OrdersPage() {
                     <div>
                         <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
                             <button
-                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1}
                                 className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50"
                             >
@@ -407,7 +432,7 @@ export default function OrdersPage() {
                                 </button>
                             ))}
                             <button
-                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                                 disabled={currentPage === totalPages}
                                 className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50"
                             >
@@ -429,8 +454,7 @@ export default function OrdersPage() {
                 toastOptions={{
                     duration: 4000,
                 }}
-
             />
         </div>
-    )
+    );
 }

@@ -17,7 +17,7 @@ const emailTemplate = (content: string) => `
         </div>
         <div class="footer">
           <p>© ${new Date().getFullYear()} EHR Clothing. All rights reserved.</p>
-  </div>
+      </div>
 `
 
 // Update the order status email function
@@ -274,7 +274,7 @@ export async function sendAdminPaymentNotification(data: {
   // WhatsApp message content for admin
   const whatsappContent = `🔔 New Payment Received!\n\nOrder: ${reference}\nCustomer: ${customerName}\nEmail: ${customerEmail}\nAmount: ₦${amount.toLocaleString()}\n\nTrack order: ${trackingUrl}`;
 
-  console.log(whatsappContent) 
+  console.log(whatsappContent)
   // Send WhatsApp message
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
@@ -292,7 +292,7 @@ export async function sendAdminPaymentNotification(data: {
   };
 
   try {
-     await Promise.all([
+    await Promise.all([
       transporter.sendMail({
         from: process.env.SMTP_USER,
         to,

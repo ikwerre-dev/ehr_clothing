@@ -173,7 +173,8 @@ export default function CustomersPage() {
 
             {/* Table with loading state */}
             <div className="bg-white rounded-lg shadow overflow-hidden">
-                {loading ? (
+                <div className="overflow-scroll">
+                           {loading ? (
                     <div className="flex justify-center items-center p-12">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                     </div>
@@ -232,6 +233,7 @@ export default function CustomersPage() {
                         </tbody>
                     </table>
                 )}
+            </div>
             </div>
 
 

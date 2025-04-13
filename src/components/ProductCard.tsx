@@ -4,6 +4,7 @@ import { StarIcon } from '@heroicons/react/24/solid'
 import Link from 'next/link'
 import { useDarkMode } from '@/context/DarkModeContext'
 import Image from 'next/image'
+import { useState } from 'react'
 
 interface ProductCardProps {
   id: string
@@ -16,18 +17,45 @@ interface ProductCardProps {
   discount?: number
 }
 
-export function ProductCard({ id, title, price, originalPrice, rating, reviewCount, image, discount }: ProductCardProps) {
+export function ProductCard({ id, title, price, originalPrice, rating, image, discount }: ProductCardProps) {
   const { isDarkMode } = useDarkMode()
-  console.log(reviewCount)
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const [imageError, setImageError] = useState(false)
+
+  // Handle successful image load
+
+  console.log(imageError)
+  const handleImageLoad = () => {
+    setImageLoaded(true)
+    setImageError(false)
+  }
+
+  // Handle image load failure
+  const handleImageError = () => {
+    setImageLoaded(false)
+    setImageError(true)
+  }
+
   return (
     <Link href={`/product/${id}`} className={`group border pb-5 rounded-lg ${isDarkMode ? 'border-[#222]' : 'border-[#666]'}`}>
-      <div className={`aspect-square overflow-hidden rounded-lg`}>
+      <div className="aspect-square overflow-hidden rounded-lg relative">
+        {!imageLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-200 animate-pulse">
+            <div className="w-12 h-12 relative">
+              <div className="absolute inset-0 rounded-full bg-gray-300 animate-ripple"></div>
+              <div className="absolute inset-0 rounded-full bg-gray-300 animate-ripple delay-200"></div>
+              <div className="absolute inset-0 rounded-full bg-gray-300 animate-ripple delay-400"></div>
+            </div>
+          </div>
+        )}
         <Image
           src={image}
           alt={title}
           width={400}
           height={400}
-          className="h-full w-full object-cover object-center group-hover:scale-105 transition-transform"
+          className={`h-full w-full object-cover object-center group-hover:scale-105 transition-transform ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+          onLoad={handleImageLoad}
+          onError={handleImageError}
         />
       </div>
 

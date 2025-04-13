@@ -14,7 +14,7 @@ const AdminAuthContext = createContext<AdminAuthContextType>({
   isAuthenticated: false,
   isLoading: true,
   login: async () => false,
-  logout: () => {},
+  logout: () => { },
 })
 
 export function AdminAuthProvider({ children }: { children: React.ReactNode }) {

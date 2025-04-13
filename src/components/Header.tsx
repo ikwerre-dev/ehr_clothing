@@ -9,11 +9,13 @@ import { useState } from 'react'
 import { PackageSearch } from 'lucide-react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useLatestCoupon } from '@/hooks/useLatestCoupon'
+import { useRouter } from 'next/navigation'
 
 export function Header({ onSearch }: { onSearch?: (query: string) => void }) {
     const pathname = usePathname()
     const searchParams = useSearchParams()
     const filterParam = searchParams.get('filter')
+    const router = useRouter()
 
     const getPageTitle = () => {
         if (pathname === '/shop') {
@@ -34,9 +36,11 @@ export function Header({ onSearch }: { onSearch?: (query: string) => void }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const searchQuery = e.target.value
         if (onSearch) {
-            onSearch(e.target.value)
+            onSearch(searchQuery)
         }
+        router.push(`/shop?search=${encodeURIComponent(searchQuery)}`)
     }
 
     const { coupon, isLoading } = useLatestCoupon()

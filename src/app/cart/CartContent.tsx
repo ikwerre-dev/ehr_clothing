@@ -14,7 +14,7 @@ export default function CartContent() {
     const { items, removeItem, updateQuantity, totalItems } = useCart()
 
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-    const shipping = 2500 // ₦2,500 flat rate
+    const shipping = 5000 // ₦2,500 flat rate
     const total = subtotal + shipping
 
     if (items.length === 0) {

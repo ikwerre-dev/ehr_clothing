@@ -5,10 +5,10 @@ interface PaymentInitiationData {
     reference: string;
     callbackUrl: string;
 }
-// const SQUAD_API_URL = 'https://sandbox-api-d.squadco.com'
+// const SQUAD_API_URL = 'https://api-d.squadco.com'
 
 export async function initializePayment(data: PaymentInitiationData) {
-    const response = await fetch('https://sandbox-api-d.squadco.com/transaction/initiate', {
+    const response = await fetch('https://api-d.squadco.com/transaction/initiate', {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${process.env.SQUAD_SECRET_KEY}`,
@@ -24,15 +24,26 @@ export async function initializePayment(data: PaymentInitiationData) {
         })
     });
 
+    console.log(JSON.stringify({
+        amount: data.amount,
+        email: data.email,
+        currency: 'NGN',
+        initiate_type: 'inline',
+        transaction_ref: data.reference,
+        callback_url: data.callbackUrl
+    }))
+
     if (!response.ok) {
-        throw new Error('Failed to initialize payment');
+        const errorData = await response.json();
+        console.error('Payment initialization error:', errorData);
+        throw new Error(errorData.message || 'Failed to initialize payment');
     }
 
     return response.json();
 }
 
 export async function lookupAccount() {
-    const response = await fetch('https://sandbox-api-d.squadco.com/payout/account/lookup', {
+    const response = await fetch('https://api-d.squadco.com/payout/account/lookup', {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${process.env.SQUAD_SECRET_KEY}`,
@@ -51,7 +62,7 @@ export async function initiateTransfer(amount: number, remark: string) {
     const merchantId = process.env.SQUAD_MERCHANT_ID;
     const reference = `${merchantId}_${Date.now()}`;
 
-    const response = await fetch('https://sandbox-api-d.squadco.com/payout/transfer', {
+    const response = await fetch('https://api-d.squadco.com/payout/transfer', {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${process.env.SQUAD_SECRET_KEY}`,
@@ -72,7 +83,7 @@ export async function initiateTransfer(amount: number, remark: string) {
 }
 
 export async function getTransferHistory() {
-    const response = await fetch('https://sandbox-api-d.squadco.com/payout/list', {
+    const response = await fetch('https://api-d.squadco.com/payout/list', {
         headers: {
             'Authorization': `Bearer ${process.env.SQUAD_SECRET_KEY}`
         }
@@ -86,7 +97,7 @@ export async function getTransferHistory() {
 export async function verifyPayment(reference: string) {
     try {
 
-        const response = await fetch(`https://sandbox-api-d.squadco.com/transaction/verify/${reference}`, {
+        const response = await fetch(`https://api-d.squadco.com/transaction/verify/${reference}`, {
             headers: {
                 'Authorization': `Bearer ${process.env.SQUAD_SECRET_KEY}`,
             }

@@ -20,7 +20,7 @@ export async function GET(request: Request) {
         }
 
         // Verify with Squad
-        const response = await fetch(`https://sandbox-api-d.squadco.com/transaction/verify/${reference}`, {
+        const response = await fetch(`https://api-d.squadco.com/transaction/verify/${reference}`, {
             headers: {
                 'Authorization': `Bearer ${process.env.SQUAD_SECRET_KEY}`,
             }

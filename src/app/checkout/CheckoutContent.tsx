@@ -36,7 +36,7 @@ export default function CheckoutContent() {
     const [validatingCoupon, setValidatingCoupon] = useState(false)
 
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-    const shipping = 2500
+    const shipping = 5000
 
     // Calculate discount if coupon is applied
     const discount = appliedCoupon ? appliedCoupon.discountAmount : 0

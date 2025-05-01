@@ -46,8 +46,7 @@ export default function TransactionsPage() {
     console.log(loading)
   },[loading])
 
-  // Effect to handle body overflow when modal is open
-  useEffect(() => {
+   useEffect(() => {
     if (selectedTransaction) {
       document.body.style.overflow = 'hidden'; // Prevent background scrolling
     } else {

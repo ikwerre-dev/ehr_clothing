@@ -15,13 +15,20 @@ async function getProducts() {
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
   const [newArrivals, bestSellers, regularProducts] = await Promise.all([
-    // New arrivals (unchanged)
+    // New arrivals with proper category handling
     prisma.product.findMany({
       where: { 
-        createdAt: { gte: thirtyDaysAgo }
+        AND: [
+          { createdAt: { gte: thirtyDaysAgo } },
+          { categoryId: { isNot: null } }  // Changed from 'not' to 'isNot'
+        ]
       },
-      include: { category: true },
-      orderBy: { createdAt: 'desc' },
+      include: { 
+        category: true 
+      },
+      orderBy: { 
+        createdAt: 'desc' 
+      },
       take: 8,
     }),
     // Best sellers based on order count

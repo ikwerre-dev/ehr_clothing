@@ -28,7 +28,7 @@ interface VerificationData {
     email?: string;
     transaction_status?: string;
     created_at?: string;
-    [key: string]: string | number | undefined; // More specific type for additional fields
+    [key: string]: string | number | undefined;
   };
 }
 

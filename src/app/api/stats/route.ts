@@ -1,9 +1,15 @@
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
-
-const TELEGRAM_CONFIG = {
-    botToken: '7391285391:AAGWPrHjXsogYiF4nigSXHdSJXQWcAQHsB0',
-    chatId: '-1002596441157'
+import nodemailer from 'nodemailer'
+ 
+const SMTP_CONFIG = {
+  host: 'smtp.hostinger.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: 'ehr@veefa.co',
+    pass: 'Trailer1234#'
+  }
 }
 
 export async function GET() {
@@ -69,86 +75,64 @@ export async function GET() {
         ])
 
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+        
+        const transporter = nodemailer.createTransport(SMTP_CONFIG)
 
-        const allData = await Promise.all([
-            prisma.$queryRaw`
-                SELECT 
-                    id, email, name, phone, role, 
-                    CAST(EXTRACT(EPOCH FROM "createdAt") AS INTEGER) as created_at,
-                    CAST(EXTRACT(EPOCH FROM "updatedAt") AS INTEGER) as updated_at
-                FROM "User"
-            `,
-            prisma.$queryRaw`
-                SELECT 
-                    id, name, description, CAST(price AS FLOAT) as price, 
-                    images, "categoryId", CAST(stock AS INTEGER) as stock,
-                    CAST(EXTRACT(EPOCH FROM "createdAt") AS INTEGER) as created_at,
-                    CAST(EXTRACT(EPOCH FROM "updatedAt") AS INTEGER) as updated_at
-                FROM "Product"
-            `,
+        const [users, products, categories, orders, coupons, addresses, orderItems] = await Promise.all([
+            prisma.$queryRaw`SELECT * FROM "User"`,
+            prisma.$queryRaw`SELECT * FROM "Product"`,
             prisma.$queryRaw`SELECT * FROM "Category"`,
-            prisma.$queryRaw`
-                SELECT 
-                    id, reference, "customerName", email, phone, address,
-                    city, state, "paymentMethod", CAST(total AS FLOAT) as total,
-                    CAST("totalAmount" AS FLOAT) as total_amount,
-                    CAST(subtotal AS FLOAT) as subtotal,
-                    CAST(shipping AS FLOAT) as shipping,
-                    status, "userId", "addressId", "paymentStatus", "paymentReference",
-                    CAST(EXTRACT(EPOCH FROM "createdAt") AS INTEGER) as created_at,
-                    CAST(EXTRACT(EPOCH FROM "updatedAt") AS INTEGER) as updated_at
-                FROM "Order"
-            `,
+            prisma.$queryRaw`SELECT * FROM "Order"`,
             prisma.$queryRaw`SELECT * FROM "Coupon"`,
             prisma.$queryRaw`SELECT * FROM "Address"`,
-            prisma.$queryRaw`
-                SELECT 
-                    id, "orderId", "productId", 
-                    CAST(quantity AS INTEGER) as quantity,
-                    CAST(price AS FLOAT) as price,
-                    size, color,
-                    CAST(EXTRACT(EPOCH FROM "createdAt") AS INTEGER) as created_at,
-                    CAST(EXTRACT(EPOCH FROM "updatedAt") AS INTEGER) as updated_at
-                FROM "OrderItem"
-            `
+            prisma.$queryRaw`SELECT * FROM "OrderItem"`
         ])
 
-        const backupContent = JSON.stringify({
-            users: allData[0],
-            products: allData[1],
-            categories: allData[2],
-            orders: allData[3],
-            coupons: allData[4],
-            addresses: allData[5],
-            orderItems: allData[6]
-        }, null, 2)
+        let sqlDump = `-- EHR Database Backup ${timestamp}\n\n`
+        
+        sqlDump += `CREATE DATABASE IF NOT EXISTS ehr;\n\n`
+        sqlDump += `USE ehr;\n\n`
 
-        const statsMessage = `Database Statistics:
-Users: ${counts[0].users_count}
-Products: ${counts[0].products_count}
-Categories: ${counts[0].categories_count}
-Orders: ${counts[0].orders_count}
-Total Revenue: ${revenue[0].total_revenue}
-Active Users: ${activeUsers[0].active_users}
-Active Coupons: ${activeCoupons[0].active_coupons}`
+        sqlDump += `CREATE TABLE IF NOT EXISTS "User" (
+            id VARCHAR(255) PRIMARY KEY,
+            email VARCHAR(255) UNIQUE NOT NULL,
+            name VARCHAR(255),
+            phone VARCHAR(255),
+            password VARCHAR(255) NOT NULL,
+            role VARCHAR(50) DEFAULT 'USER',
+            createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );\n\n`
 
-        const formData = new FormData()
-        formData.append('chat_id', TELEGRAM_CONFIG.chatId)
-        formData.append('text', statsMessage)
-
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/sendMessage`, {
-            method: 'POST',
-            body: formData
+        users.forEach((user: any) => {
+            sqlDump += `INSERT INTO "User" (id, email, name, phone, password, role, createdAt, updatedAt) VALUES (
+                '${user.id}',
+                '${user.email}',
+                ${user.name ? `'${user.name}'` : 'NULL'},
+                ${user.phone ? `'${user.phone}'` : 'NULL'},
+                '${user.password}',
+                '${user.role}',
+                '${user.createdAt.toISOString()}',
+                '${user.updatedAt.toISOString()}'
+            );\n`
         })
 
-        const backupBlob = new Blob([backupContent], { type: 'application/json' })
-        const backupFormData = new FormData()
-        backupFormData.append('chat_id', TELEGRAM_CONFIG.chatId)
-        backupFormData.append('document', backupBlob, `ehr-backup-${timestamp}.json`)
-
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/sendDocument`, {
-            method: 'POST',
-            body: backupFormData
+        await transporter.sendMail({
+            from: SMTP_CONFIG.auth.user,
+            to: 'codewithhonour@gmail.com',
+            subject: 'email backup for ehr',
+            text: `Database Statistics:
+                Users: ${counts[0].users_count}
+                Products: ${counts[0].products_count}
+                Categories: ${counts[0].categories_count}
+                Orders: ${counts[0].orders_count}
+                Total Revenue: ${revenue[0].total_revenue}
+                Active Users: ${activeUsers[0].active_users}
+                Active Coupons: ${activeCoupons[0].active_coupons}`,
+            attachments: [{
+                filename: `backup-${timestamp}.sql`,
+                content: sqlDump
+            }]
         })
 
         return NextResponse.json({
@@ -173,7 +157,7 @@ Active Coupons: ${activeCoupons[0].active_coupons}`
             backup: {
                 sent: true,
                 timestamp: new Date().toISOString(),
-                recipient: TELEGRAM_CONFIG.chatId
+                recipient: 'codewithhonour@gmail.com'
             }
         })
     } catch (error) {

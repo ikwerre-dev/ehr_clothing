@@ -123,28 +123,14 @@ export async function GET() {
             orderItems: allData[6]
         }, null, 2)
 
-        const statsMessage = `Database Statistics:
-Users: ${counts[0].users_count}
-Products: ${counts[0].products_count}
-Categories: ${counts[0].categories_count}
-Orders: ${counts[0].orders_count}
-Total Revenue: ${revenue[0].total_revenue}
-Active Users: ${activeUsers[0].active_users}
-Active Coupons: ${activeCoupons[0].active_coupons}`
 
-        const formData = new FormData()
-        formData.append('chat_id', TELEGRAM_CONFIG.chatId)
-        formData.append('text', statsMessage)
-
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/sendMessage`, {
-            method: 'POST',
-            body: formData
-        })
 
         const backupBlob = new Blob([backupContent], { type: 'application/json' })
         const backupFormData = new FormData()
         backupFormData.append('chat_id', TELEGRAM_CONFIG.chatId)
         backupFormData.append('document', backupBlob, `ehr-backup-${timestamp}.json`)
+        backupFormData.append('caption', `EHR - Backup`);
+
 
         await fetch(`https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/sendDocument`, {
             method: 'POST',

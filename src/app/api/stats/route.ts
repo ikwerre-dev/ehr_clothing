@@ -78,44 +78,58 @@ export async function GET() {
         
         const transporter = nodemailer.createTransport(SMTP_CONFIG)
 
-        const [users, products, categories, orders, coupons, addresses, orderItems] = await Promise.all([
-            prisma.$queryRaw`SELECT * FROM "User"`,
-            prisma.$queryRaw`SELECT * FROM "Product"`,
+        const allData = await Promise.all([
+            prisma.$queryRaw`
+                SELECT 
+                    id, email, name, phone, role, 
+                    CAST(EXTRACT(EPOCH FROM "createdAt") AS INTEGER) as created_at,
+                    CAST(EXTRACT(EPOCH FROM "updatedAt") AS INTEGER) as updated_at
+                FROM "User"
+            `,
+            prisma.$queryRaw`
+                SELECT 
+                    id, name, description, CAST(price AS FLOAT) as price, 
+                    images, "categoryId", CAST(stock AS INTEGER) as stock,
+                    CAST(EXTRACT(EPOCH FROM "createdAt") AS INTEGER) as created_at,
+                    CAST(EXTRACT(EPOCH FROM "updatedAt") AS INTEGER) as updated_at
+                FROM "Product"
+            `,
             prisma.$queryRaw`SELECT * FROM "Category"`,
-            prisma.$queryRaw`SELECT * FROM "Order"`,
+            prisma.$queryRaw`
+                SELECT 
+                    id, reference, "customerName", email, phone, address,
+                    city, state, "paymentMethod", CAST(total AS FLOAT) as total,
+                    CAST("totalAmount" AS FLOAT) as total_amount,
+                    CAST(subtotal AS FLOAT) as subtotal,
+                    CAST(shipping AS FLOAT) as shipping,
+                    status, "userId", "addressId", "paymentStatus", "paymentReference",
+                    CAST(EXTRACT(EPOCH FROM "createdAt") AS INTEGER) as created_at,
+                    CAST(EXTRACT(EPOCH FROM "updatedAt") AS INTEGER) as updated_at
+                FROM "Order"
+            `,
             prisma.$queryRaw`SELECT * FROM "Coupon"`,
             prisma.$queryRaw`SELECT * FROM "Address"`,
-            prisma.$queryRaw`SELECT * FROM "OrderItem"`
+            prisma.$queryRaw`
+                SELECT 
+                    id, "orderId", "productId", 
+                    CAST(quantity AS INTEGER) as quantity,
+                    CAST(price AS FLOAT) as price,
+                    size, color,
+                    CAST(EXTRACT(EPOCH FROM "createdAt") AS INTEGER) as created_at,
+                    CAST(EXTRACT(EPOCH FROM "updatedAt") AS INTEGER) as updated_at
+                FROM "OrderItem"
+            `
         ])
 
-        let sqlDump = `-- EHR Database Backup ${timestamp}\n\n`
-        
-        sqlDump += `CREATE DATABASE IF NOT EXISTS ehr;\n\n`
-        sqlDump += `USE ehr;\n\n`
-
-        sqlDump += `CREATE TABLE IF NOT EXISTS "User" (
-            id VARCHAR(255) PRIMARY KEY,
-            email VARCHAR(255) UNIQUE NOT NULL,
-            name VARCHAR(255),
-            phone VARCHAR(255),
-            password VARCHAR(255) NOT NULL,
-            role VARCHAR(50) DEFAULT 'USER',
-            createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );\n\n`
-
-        users.forEach((user: any) => {
-            sqlDump += `INSERT INTO "User" (id, email, name, phone, password, role, createdAt, updatedAt) VALUES (
-                '${user.id}',
-                '${user.email}',
-                ${user.name ? `'${user.name}'` : 'NULL'},
-                ${user.phone ? `'${user.phone}'` : 'NULL'},
-                '${user.password}',
-                '${user.role}',
-                '${user.createdAt.toISOString()}',
-                '${user.updatedAt.toISOString()}'
-            );\n`
-        })
+        const backupContent = JSON.stringify({
+            users: allData[0],
+            products: allData[1],
+            categories: allData[2],
+            orders: allData[3],
+            coupons: allData[4],
+            addresses: allData[5],
+            orderItems: allData[6]
+        }, null, 2)
 
         await transporter.sendMail({
             from: SMTP_CONFIG.auth.user,
@@ -130,8 +144,8 @@ export async function GET() {
                 Active Users: ${activeUsers[0].active_users}
                 Active Coupons: ${activeCoupons[0].active_coupons}`,
             attachments: [{
-                filename: `backup-${timestamp}.sql`,
-                content: sqlDump
+                filename: `backup-${timestamp}.json`,
+                content: backupContent
             }]
         })
 
